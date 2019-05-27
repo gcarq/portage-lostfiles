@@ -85,8 +85,8 @@ WHITELIST = {
 
 def main(args: argparse.Namespace) -> None:
     tracked = collect_tracked_files()
-
-    for dirname in DIRS_TO_CHECK:
+    dirs_to_check = args.paths or DIRS_TO_CHECK
+    for dirname in dirs_to_check:
 
         for dirpath, dirnames, filenames in os.walk(dirname, topdown=True):
             if not args.strict:
@@ -176,5 +176,15 @@ def collect_tracked_files() -> Set[str]:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--strict', help='run in strict mode', action='store_true')
+        '--strict',
+        help='run in strict mode',
+        action='store_true'
+    )
+    parser.add_argument(
+        '-p', '--path',
+        action='append',
+        dest='paths',
+        help='override default directories, can be passed multiple times. '
+             '(default: {})'.format(' '.join(DIRS_TO_CHECK))
+    )
     main(parser.parse_args())

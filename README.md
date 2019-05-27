@@ -13,5 +13,16 @@ cd portage-lostfiles
 $ ./lostfiles.py
 ```
 
+## Examples
+Ignore built-in whitelist and report all files
+```bash
+$ ./lostfiles.py --strict
+```
+
+Override default paths
+```bash
+$ ./lostfiles.py -p /lib -p /lib32 -p /lib64
+```
+
 ## Dependencies
-* python3-{5,6,7}
+* python3.5+
