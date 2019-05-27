@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import itertools
 import os
 from glob import glob
 from pathlib import Path
@@ -82,6 +82,7 @@ def main():
     files = collect_tracked_files()
     for dirname in DIRS_TO_CHECK:
         for dirpath, dirnames, filenames in os.walk(dirname, topdown=True):
+            # Modify dirnames in-place to apply whitelist filter
             dirnames[:] = [d for d in dirnames
                            if os.path.join(dirpath, d) not in WHITELIST]
 
@@ -98,28 +99,37 @@ def main():
                     print(filepath)
 
 
+def resolve_symlinks(*paths) -> Set[str]:
+    return set(itertools.chain.from_iterable(
+        (path, os.path.realpath(path)) for path in paths))
+
+
 def normalize_filenames(files: List[str]) -> Set[str]:
     """Normalizes a list of CONTENT and returns a set of absolute file paths"""
     normalized = set()
     for f in files:
         ctype, rem = f.rstrip().split(' ', maxsplit=1)
         if ctype == 'dir':
-            normalized.add(rem)
+            # format: dir <path>
+            normalized.update(resolve_symlinks(rem))
 
         elif ctype == 'obj':
+            # format: obj <path> <md5sum> <unixtime>
             parts = rem.rsplit(' ', maxsplit=2)
             assert len(parts) == 3, 'unknown obj syntax definition for: %s' % f
-            normalized.add(parts[0])
+            normalized.update(resolve_symlinks(parts[0]))
 
         elif ctype == 'sym':
+            # format: sym <source> -> <target> <unixtime>
             parts = rem.split(' ')
             assert len(parts) == 4, 'unknown obj syntax definition for: %s' % f
             sym_origin = parts[0]
             if parts[2].startswith('/'):
                 sym_target = parts[2]
             else:
-                sym_target = os.path.join(os.path.dirname(sym_origin), parts[2])
-            normalized.update((sym_origin, sym_target))
+                sym_target = os.path.join(
+                    os.path.dirname(sym_origin), parts[2])
+            normalized.update(resolve_symlinks(sym_origin, sym_target))
 
         else:
             raise AssertionError('Unknown content type: %s' % ctype)
@@ -132,11 +142,10 @@ def collect_tracked_files() -> Set[str]:
     files = set()
     for filename in Path(PORTAGE_DB).glob('**/CONTENTS'):
         with open(str(filename), mode='r') as fp:
-            files.update(
-                normalize_filenames(fp.readlines()))
+            files.update(normalize_filenames(fp.readlines()))
 
     if not files:
-        raise AssertionError('Found no tracked files. This is probably a bug!')
+        raise AssertionError('No tracked files found. This is probably a bug!')
     return files
 
 
