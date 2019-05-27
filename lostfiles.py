@@ -61,6 +61,9 @@ WHITELIST = {
     '/var/.updated',
     '/var/cache',
     '/var/db',
+    '/var/lib/alsa/asound.state',
+    '/var/lib/dbus/machine-id',
+    '/var/lib/dhcp/dhcpd.leases',
     '/var/lib/gentoo/news',
     '/var/lib/layman',
     '/var/lib/portage',
@@ -72,6 +75,7 @@ WHITELIST = {
     '/var/spool',
     '/var/tmp',
     *glob('/usr/share/.mono/*/Trust'),
+    *glob('/usr/share/icons/*/icon-theme.cache'),
     *glob('/usr/share/fonts/**/.uuid', recursive=True),
     *glob('/usr/share/fonts/*/*.dir'),
     *glob('/usr/share/fonts/*/*.scale'),
@@ -80,8 +84,10 @@ WHITELIST = {
 
 
 def main(args: argparse.Namespace) -> None:
-    files = collect_tracked_files()
+    tracked = collect_tracked_files()
+
     for dirname in DIRS_TO_CHECK:
+
         for dirpath, dirnames, filenames in os.walk(dirname, topdown=True):
             if not args.strict:
                 # Modify dirnames in-place to apply whitelist filter
@@ -89,16 +95,32 @@ def main(args: argparse.Namespace) -> None:
                                if os.path.join(dirpath, d) not in WHITELIST]
 
             for name in filenames:
-                if not args.strict and name == '.keep':
-                    continue
-
                 filepath = os.path.join(dirpath, name)
-                if not args.strict and filepath in WHITELIST:
+                if any(f in tracked for f in resolve_symlinks(filepath)):
+                    continue
+                if args.strict is False and should_ignore_path(filepath):
                     continue
 
-                if filepath not in files \
-                        and os.path.realpath(filepath) not in files:
-                    print(filepath)
+                print(filepath)
+
+
+def should_ignore_path(filepath: str) -> bool:
+    """Relative path checks"""
+
+    if filepath in WHITELIST:
+        return True
+
+    filename, ext = os.path.splitext(os.path.basename(filepath))
+    # Ignore .keep files to indicate no-delete folders
+    if filename == '.keep':
+        return True
+
+    dirname = os.path.basename(os.path.dirname(filepath))
+    # Ignore python cached bytecode files
+    if dirname == '__pycache__' and ext == '.pyc':
+        return True
+
+    return False
 
 
 def resolve_symlinks(*paths) -> Set[str]:
