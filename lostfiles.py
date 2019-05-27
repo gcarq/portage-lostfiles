@@ -16,7 +16,6 @@ DIRS_TO_CHECK = {
     '/lib64',
     '/opt',
     '/sbin',
-    '/srv',
     '/usr',
     '/var',
 }
