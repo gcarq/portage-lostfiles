@@ -6,8 +6,8 @@ from glob import glob
 from pathlib import Path
 from typing import List, Set
 
+VERSION = 0.1
 PORTAGE_DB = '/var/db/pkg'
-
 DIRS_TO_CHECK = {
     '/bin',
     '/etc',
@@ -182,8 +182,14 @@ if __name__ == '__main__':
     parser.add_argument(
         '-p', '--path',
         action='append',
+        metavar='PATH',
         dest='paths',
         help='override default directories, can be passed multiple times. '
              '(default: {})'.format(' '.join(DIRS_TO_CHECK))
+    )
+    parser.add_argument(
+        '-v', '--version',
+        action='version',
+        version='%(prog)s {}'.format(VERSION)
     )
     main(parser.parse_args())
