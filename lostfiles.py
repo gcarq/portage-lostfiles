@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse
 import itertools
 import os
 from glob import glob
@@ -78,20 +79,21 @@ WHITELIST = {
 }
 
 
-def main():
+def main(args: argparse.Namespace) -> None:
     files = collect_tracked_files()
     for dirname in DIRS_TO_CHECK:
         for dirpath, dirnames, filenames in os.walk(dirname, topdown=True):
-            # Modify dirnames in-place to apply whitelist filter
-            dirnames[:] = [d for d in dirnames
-                           if os.path.join(dirpath, d) not in WHITELIST]
+            if not args.strict:
+                # Modify dirnames in-place to apply whitelist filter
+                dirnames[:] = [d for d in dirnames
+                               if os.path.join(dirpath, d) not in WHITELIST]
 
             for name in filenames:
-                if name == '.keep':
+                if not args.strict and name == '.keep':
                     continue
 
                 filepath = os.path.join(dirpath, name)
-                if filepath in WHITELIST:
+                if not args.strict and filepath in WHITELIST:
                     continue
 
                 if filepath not in files \
@@ -150,4 +152,7 @@ def collect_tracked_files() -> Set[str]:
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--strict', help='run in strict mode', action='store_true')
+    main(parser.parse_args())
