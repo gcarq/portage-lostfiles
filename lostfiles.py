@@ -6,7 +6,8 @@ from glob import glob
 from pathlib import Path
 from typing import List, Set
 
-VERSION = 0.1
+__version__ = '0.1.0'
+
 PORTAGE_DB = '/var/db/pkg'
 DIRS_TO_CHECK = {
     '/bin',
@@ -193,6 +194,6 @@ if __name__ == '__main__':
     parser.add_argument(
         '-v', '--version',
         action='version',
-        version='%(prog)s {}'.format(VERSION)
+        version='%(prog)s {}'.format(__version__)
     )
     main(parser.parse_args())
