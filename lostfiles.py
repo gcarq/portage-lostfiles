@@ -50,6 +50,7 @@ WHITELIST = {
     '/etc/udev/hwdb.bin',
     '/etc/vconsole.conf',
     '/lib/modules',
+    '/lib64/modules',
     '/usr/lib/ccache',
     '/usr/portage',
     '/usr/sbin/fix_libtool_files.sh',
