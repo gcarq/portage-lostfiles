@@ -66,6 +66,7 @@ WHITELIST = {
     '/var/lib/dhcp/dhcpd.leases',
     '/var/lib/gentoo/news',
     '/var/lib/layman',
+    '/var/lib/module-rebuild/moduledb',
     '/var/lib/portage',
     '/var/lib/sddm/.cache',
     '/var/lib/systemd',
