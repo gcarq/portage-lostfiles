@@ -6,7 +6,7 @@ from glob import glob
 from pathlib import Path
 from typing import List, Set
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 PORTAGE_DB = '/var/db/pkg'
 DIRS_TO_CHECK = {
