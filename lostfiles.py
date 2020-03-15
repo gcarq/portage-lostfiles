@@ -6,7 +6,7 @@ from glob import glob
 from pathlib import Path
 from typing import List, Set
 
-__version__ = "0.1.1"
+import pkg_resources
 
 PORTAGE_DB = "/var/db/pkg"
 DIRS_TO_CHECK = {
@@ -93,9 +93,31 @@ WHITELIST = {
 }
 
 
-def main(args: argparse.Namespace) -> None:
-    tracked = collect_tracked_files()
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--strict", help="run in strict mode", action="store_true")
+    parser.add_argument(
+        "-p",
+        "--path",
+        action="append",
+        metavar="PATH",
+        dest="paths",
+        help="override default directories, can be passed multiple times. "
+        "(default: {})".format(" ".join(DIRS_TO_CHECK)),
+    )
+    parser.add_argument(
+        "-v",
+        "--version",
+        action="version",
+        version="%(prog)s {}".format(pkg_resources.require("lostfiles")[0].version),
+    )
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
     dirs_to_check = args.paths or DIRS_TO_CHECK
+    tracked = collect_tracked_files()
     for dirname in dirs_to_check:
 
         for dirpath, dirnames, filenames in os.walk(dirname, topdown=True):
@@ -185,18 +207,4 @@ def collect_tracked_files() -> Set[str]:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--strict", help="run in strict mode", action="store_true")
-    parser.add_argument(
-        "-p",
-        "--path",
-        action="append",
-        metavar="PATH",
-        dest="paths",
-        help="override default directories, can be passed multiple times. "
-        "(default: {})".format(" ".join(DIRS_TO_CHECK)),
-    )
-    parser.add_argument(
-        "-v", "--version", action="version", version="%(prog)s {}".format(__version__)
-    )
-    main(parser.parse_args())
+    main()
