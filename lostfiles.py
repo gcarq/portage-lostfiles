@@ -180,13 +180,14 @@ def normalize_filenames(files: List[str]) -> Set[str]:
 
         elif ctype == "sym":
             # format: sym <source> -> <target> <unixtime>
-            parts = rem.split(" ")
-            assert len(parts) == 4, "unknown obj syntax definition for: %s" % f
+            parts = rem.split(" -> ")
+            assert len(parts) == 2, "unknown obj syntax definition for: %s" % f
             sym_origin = parts[0]
-            if parts[2].startswith("/"):
-                sym_target = parts[2]
+            sym_dest = parts[1].rsplit(" ", maxsplit=1)[0]
+            if sym_dest.startswith("/"):
+                sym_target = sym_dest
             else:
-                sym_target = os.path.join(os.path.dirname(sym_origin), parts[2])
+                sym_target = os.path.join(os.path.dirname(sym_origin), sym_dest)
             normalized.update(resolve_symlinks(sym_origin, sym_target))
 
         else:
