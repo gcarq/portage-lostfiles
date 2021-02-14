@@ -90,6 +90,7 @@ WHITELIST = {
     *glob("/usr/share/fonts/*/*.dir"),
     *glob("/usr/share/fonts/*/*.scale"),
     *glob("/usr/src/linux*"),  # Ignore kernel source directories
+    *glob("/var/www/*"),
 }
 
 
