@@ -12,9 +12,9 @@ def read(filename: str) -> str:
 
 setup(
     name="lostfiles",
-    version="0.2.0",
+    version="0.2.2",
     author="Michael Egger",
-    author_email="michael.egger@tsn.at",
+    author_email="egger.m@protonmail.com",
     description="A simple script to identify files not tracked by Portage package manager.",
     url="https://github.com/gcarq/portage-lostfiles",
     license="GPL-2.0",
