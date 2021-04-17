@@ -25,4 +25,4 @@ $ ./lostfiles.py -p /lib -p /lib32 -p /lib64
 ```
 
 ## Dependencies
-* python3.5+
+* python3.6+
