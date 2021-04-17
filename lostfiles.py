@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import argparse
 import itertools
 import os
@@ -129,7 +131,7 @@ def main() -> None:
                 ]
 
             for name in filenames:
-                filepath = os.path.join(dirpath, name)
+                filepath = os.path.join(dirpath, name.encode('utf-8', 'replace').decode())
                 if any(f in tracked for f in resolve_symlinks(filepath)):
                     continue
                 if args.strict is False and should_ignore_path(filepath):
