@@ -30,10 +30,9 @@ WHITELIST = {
     "/etc/.gitignore",
     "/etc/.pwd.lock",
     "/etc/.updated",
+    "/etc/adjtime",
     "/etc/crypttab",
-    "/etc/dhcpcd.duid",
     "/etc/fstab",
-    "/etc/gconf/gconf.xml.defaults",
     "/etc/group",
     "/etc/group-",
     "/etc/gshadow",
@@ -52,13 +51,30 @@ WHITELIST = {
     "/etc/shadow",
     "/etc/shadow-",
     "/etc/subgid",
+    "/etc/subgid-",
     "/etc/subuid",
+    "/etc/subuid-",
+    "/etc/profile.env",
+    "/etc/profile.csh",
+    "/etc/make.conf",
+    "/etc/csh.env",
     "/etc/timezone",
     "/etc/udev/hwdb.bin",
     "/etc/vconsole.conf",
+    "/etc/env.d/02locale",
+    "/etc/env.d/04gcc-x86_64-pc-linux-gnu",
+    "/etc/env.d/05binutils",
+    "/etc/env.d/99editor",
+    "/etc/env.d/binutils/config-x86_64-pc-linux-gnu",
+    "/etc/env.d/gcc/config-x86_64-pc-linux-gnu",
+    "/etc/ld.so.conf.d/05gcc-x86_64-pc-linux-gnu.conf",
+    "/etc/environment.d/10-gentoo-env.conf",
     "/usr/bin/c89",
     "/usr/bin/c99",
     "/usr/lib/ccache",
+    "/etc/systemd/network",
+    "/etc/systemd/user",
+    "/usr/lib64/gconv/gconv-modules.cache",
     "/usr/portage",
     "/usr/sbin/fix_libtool_files.sh",
     "/usr/share/applications/mimeinfo.cache",
@@ -84,6 +100,9 @@ WHITELIST = {
     "/var/run",
     "/var/spool",
     "/var/tmp",
+    *glob("/etc/ssl/*"),
+    *glob("/usr/share/gcc-data/*/*/info/dir"),
+    *glob("/usr/share/binutils-data/*/*/info/dir"),
     *glob("/lib*/modules"),  # Ignore all kernel modules
     *glob("/usr/lib*/locale/locale-archive"),
     *glob("/usr/share/.mono/*/Trust"),
@@ -94,7 +113,6 @@ WHITELIST = {
     *glob("/usr/src/linux*"),  # Ignore kernel source directories
     *glob("/var/www/*"),
 }
-
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
@@ -116,11 +134,102 @@ def parse_args() -> argparse.Namespace:
     )
     return parser.parse_args()
 
+def packages():
+    if package_exist("app-admin/system-config-printer"):
+        WHITELIST.update({*glob("/usr/share/system-config-printer/*.pyc")})
+
+    if package_exist("app-editors/vim"):
+        WHITELIST.update({"/usr/share/vim/vim82/doc/tags"})
+
+    if package_exist("app-emulation/docker"):
+        WHITELIST.update({"/etc/docker/key.json"})
+
+    if package_exist("app-emulation/libvirt"):
+        WHITELIST.update({*glob("/etc/libvirt/nwfilter/*.xml")})
+        WHITELIST.update({*glob("/etc/libvirt/qemu/*.xml")})
+        WHITELIST.update({*glob("/etc/libvirt/qemu/autostart/*.xml")})
+        WHITELIST.update({*glob("/etc/libvirt/qemu/networks/*.xml")})
+        WHITELIST.update({*glob("/etc/libvirt/qemu/networks/autostart/*.xml")})
+        WHITELIST.update({*glob("/etc/libvirt/storage/*.xml")})
+        WHITELIST.update({*glob("/etc/libvirt/storage/autostart/*.xml")})
+
+    if package_exist("app-i18n/ibus"):
+        WHITELIST.update({"/etc/dconf/db/ibus"})
+
+    if package_exist("app-text/docbook-xml-dtd"):
+        WHITELIST.update({"/etc/xml/catalog"})
+        WHITELIST.update({"/etc/xml/docbook"})
+
+    if package_exist("app-office/libreoffice") or package_exist("app-office/libreoffice-bin"):
+        WHITELIST.update({"/usr/lib64/libreoffice/program/resource/common/fonts/.uuid"})
+        WHITELIST.update({"/usr/lib64/libreoffice/share/fonts/truetype/.uuid"})
+
+    if package_exist("dev-db/mariadb"):
+        WHITELIST.update({*glob("/etc/mysql/mariadb.d/*.cnf")})
+
+    if package_exist("dev-lang/php"):
+        WHITELIST.update({*glob("/etc/php/fpm*/fpm.d/*")})
+
+    if package_exist("dev-libs/nss"):
+        WHITELIST.update({"/usr/lib64/libfreebl3.chk"})
+        WHITELIST.update({"/usr/lib64/libnssdbm3.chk"})
+        WHITELIST.update({"/usr/lib64/libsoftokn3.chk"})
+
+    if package_exist("net-misc/dhcpcd"):
+        WHITELIST.update({"/etc/dhcpcd.duid"})
+
+    if package_exist("net-misc/dhcp"):
+        WHITELIST.update({*glob("/etc/dhcp/dhclient-*.conf")})
+
+    if package_exist("net-print/cups"):
+        WHITELIST.update({"/etc/printcap"})
+        WHITELIST.update({"/etc/cups/classes.conf"})
+        WHITELIST.update({"/etc/cups/ppd"})
+        WHITELIST.update({"/etc/cups/ssl"})
+        WHITELIST.update({"/etc/cups/printers.conf"})
+        WHITELIST.update({"/etc/cups/subscriptions.conf"})
+        WHITELIST.update({*glob("/etc/cups/*.O")})
+
+    if package_exist("dev-php/PEAR-PEAR"):
+        WHITELIST.update({"/usr/share/php/.channels"})
+        WHITELIST.update({"/usr/share/php/.packagexml"})
+        WHITELIST.update({"/usr/share/php/.registry"})
+        WHITELIST.update({"/usr/share/php/.filemap"})
+        WHITELIST.update({"/usr/share/php/.lock"})
+        WHITELIST.update({"/usr/share/php/.depdblock"})
+        WHITELIST.update({"/usr/share/php/.depdb"})
+
+    if package_exist("media-video/vlc"):
+        WHITELIST.update({"/usr/lib64/vlc/plugins/plugins.dat"})
+
+    if package_exist("net-misc/openssh"):
+        WHITELIST.update({*glob("/etc/ssh/ssh_host_*")})
+
+    if package_exist("net-misc/teamviewer"):
+        WHITELIST.update({*glob("/etc/teamviewer*/global.conf")})
+        WHITELIST.update({*glob("/opt/teamviewer*/rolloutfile.*")})
+
+    if package_exist("net-vpn/openvpn"):
+        WHITELIST.update({*glob("/etc/openvpn/*")})
+
+    if package_exist("sys-apps/lm-sensors"):
+        WHITELIST.update({"/etc/modules-load.d/lm_sensors.conf"})
+
+    if package_exist("sys-fs/lvm2"):
+        WHITELIST.update({*glob("/etc/lvm/backup/*")})
+        WHITELIST.update({*glob("/etc/lvm/archive/*")})
+
+    if package_exist("sys-libs/cracklib"):
+        WHITELIST.update({*glob("/usr/lib/cracklib_dict.*")})
+
 
 def main() -> None:
     args = parse_args()
     dirs_to_check = args.paths or DIRS_TO_CHECK
     tracked = collect_tracked_files()
+
+    packages()
+
     for dirname in dirs_to_check:
 
         for dirpath, dirnames, filenames in os.walk(dirname, topdown=True):
@@ -164,6 +273,12 @@ def resolve_symlinks(*paths) -> Set[str]:
         itertools.chain.from_iterable((path, os.path.realpath(path)) for path in paths)
     )
 
+def package_exist(name: str) -> bool:
+	for file in glob(PORTAGE_DB + "/" + name + "-[1-9]*"):
+		if os.path.isdir(file) :
+			return True
+
+	return False
 
 def normalize_filenames(files: List[str]) -> Set[str]:
     """Normalizes a list of CONTENT and returns a set of absolute file paths"""
@@ -208,7 +323,6 @@ def collect_tracked_files() -> Set[str]:
     if not files:
         raise AssertionError("No tracked files found. This is probably a bug!")
     return files
-
 
 if __name__ == "__main__":
     main()
