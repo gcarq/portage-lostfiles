@@ -132,6 +132,11 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 def packages():
+    if package_exist("app-admin/salt"):
+        WHITELIST.update({"/etc/salt/minion.d/_schedule.conf"})
+        WHITELIST.update({"/etc/salt/minion_id"})
+        WHITELIST.update({*glob("/etc/salt/pki/*")})
+
     if package_exist("app-admin/system-config-printer"):
         WHITELIST.update({*glob("/usr/share/system-config-printer/*.pyc")})
 
@@ -177,6 +182,10 @@ def packages():
 
     if package_exist("net-misc/dhcp"):
         WHITELIST.update({*glob("/etc/dhcp/dhclient-*.conf")})
+
+    if package_exist("net-misc/dahdi-tools"):
+        WHITELIST.update({*glob("/etc/dahdi/assigned-spans.*")})
+        WHITELIST.update({*glob("/etc/dahdi/system.*")})
 
     if package_exist("net-print/cups"):
         WHITELIST.update({"/etc/printcap"})
