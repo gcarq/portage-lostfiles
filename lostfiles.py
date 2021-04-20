@@ -25,99 +25,99 @@ DIRS_TO_CHECK = {
 }
 
 PKG_PATHS = {
-	"app-admin/salt": {
-		"/etc/salt/minion.d/_schedule.conf",
-		"/etc/salt/minion_id",
-		"/etc/salt/pki/*",
-	},
-	"app-admin/system-config-printer": {
-	    "/usr/share/system-config-printer/*.pyc",
-	},
-	"app-editors/vim": {
-	    "/usr/share/vim/vim82/doc/tags",
-	},
-	"app-emulation/docker": {
-	    "/etc/docker/key.json",
-	},
-	"app-emulation/libvirt": {
-	     "/etc/libvirt/nwfilter/*.xml",
-	     "/etc/libvirt/qemu/*.xml",
-	     "/etc/libvirt/qemu/autostart/*.xml",
-	     "/etc/libvirt/qemu/networks/*.xml",
-	     "/etc/libvirt/qemu/networks/autostart/*.xml",
-	     "/etc/libvirt/storage/*.xml",
-	     "/etc/libvirt/storage/autostart/*.xml",
-	},
-	"app-i18n/ibus": {
-	     "/etc/dconf/db/ibus",
-	},
-	"app-text/docbook-xml-dtd": {
-	     "/etc/xml/catalog",
-	     "/etc/xml/docbook"
-	},
-	"dev-db/mariadb": {
-	     "/etc/mysql/mariadb.d/*.cnf"
-	},
-	"dev-lang/php": {
-	     "/etc/php/fpm*/fpm.d/*"
-	},
-	"dev-libs/nss": {
-	     "/usr/lib64/libfreebl3.chk",
-	     "/usr/lib64/libnssdbm3.chk",
-	     "/usr/lib64/libsoftokn3.chk",
-	},
-	"net-misc/dhcpcd": {
-	     "/etc/dhcpcd.duid",
-	},
-	"net-misc/dhcp": {
-	     "/etc/dhcp/dhclient-*.conf",
-	},
-	"net-misc/dahdi-tools": {
-	     "/etc/dahdi/assigned-spans.*",
-	     "/etc/dahdi/system.*",
-	},
-	"net-print/cups": {
-	     "/etc/printcap",
-	     "/etc/cups/classes.conf",
-	     "/etc/cups/ppd",
-	     "/etc/cups/ssl",
-	     "/etc/cups/printers.conf",
-	     "/etc/cups/subscriptions.conf",
-	     "/etc/cups/*.O",
-	},
-	"dev-php/PEAR-PEAR": {
-	     "/usr/share/php/.channels",
-	     "/usr/share/php/.packagexml",
-	     "/usr/share/php/.registry",
-	     "/usr/share/php/.filemap",
-	     "/usr/share/php/.lock",
-	     "/usr/share/php/.depdblock",
-	     "/usr/share/php/.depdb",
-	},
-	"media-video/vlc": {
-	     "/usr/lib64/vlc/plugins/plugins.dat",
-	},
-	"net-misc/openssh": {
-	     "/etc/ssh/ssh_host_*",
-	},
-	"net-misc/teamviewer": {
-	     "/etc/teamviewer*/global.conf",
-	     "/opt/teamviewer*/rolloutfile.*",
-	},
-	"net-vpn/openvpn": {
-	     "/etc/openvpn/*",
-	},
-	"sys-apps/lm-sensors": {
-	     "/etc/modules-load.d/lm_sensors.conf",
-	},
-	"sys-fs/lvm2": {
-	     "/etc/lvm/backup/*",
+    "app-admin/salt": {
+        "/etc/salt/minion.d/_schedule.conf",
+        "/etc/salt/minion_id",
+        "/etc/salt/pki/*",
+    },
+    "app-admin/system-config-printer": {
+        "/usr/share/system-config-printer/*.pyc",
+    },
+    "app-editors/vim": {
+        "/usr/share/vim/vim82/doc/tags",
+    },
+    "app-emulation/docker": {
+        "/etc/docker/key.json",
+    },
+    "app-emulation/libvirt": {
+         "/etc/libvirt/nwfilter/*.xml",
+         "/etc/libvirt/qemu/*.xml",
+         "/etc/libvirt/qemu/autostart/*.xml",
+         "/etc/libvirt/qemu/networks/*.xml",
+         "/etc/libvirt/qemu/networks/autostart/*.xml",
+         "/etc/libvirt/storage/*.xml",
+         "/etc/libvirt/storage/autostart/*.xml",
+    },
+    "app-i18n/ibus": {
+         "/etc/dconf/db/ibus",
+    },
+    "app-text/docbook-xml-dtd": {
+         "/etc/xml/catalog",
+         "/etc/xml/docbook"
+    },
+    "dev-db/mariadb": {
+         "/etc/mysql/mariadb.d/*.cnf"
+    },
+    "dev-lang/php": {
+         "/etc/php/fpm*/fpm.d/*"
+    },
+    "dev-libs/nss": {
+         "/usr/lib64/libfreebl3.chk",
+         "/usr/lib64/libnssdbm3.chk",
+         "/usr/lib64/libsoftokn3.chk",
+    },
+    "net-misc/dhcpcd": {
+         "/etc/dhcpcd.duid",
+    },
+    "net-misc/dhcp": {
+         "/etc/dhcp/dhclient-*.conf",
+    },
+    "net-misc/dahdi-tools": {
+         "/etc/dahdi/assigned-spans.*",
+         "/etc/dahdi/system.*",
+    },
+    "net-print/cups": {
+         "/etc/printcap",
+         "/etc/cups/classes.conf",
+         "/etc/cups/ppd",
+         "/etc/cups/ssl",
+         "/etc/cups/printers.conf",
+         "/etc/cups/subscriptions.conf",
+         "/etc/cups/*.O",
+    },
+    "dev-php/PEAR-PEAR": {
+         "/usr/share/php/.channels",
+         "/usr/share/php/.packagexml",
+         "/usr/share/php/.registry",
+         "/usr/share/php/.filemap",
+         "/usr/share/php/.lock",
+         "/usr/share/php/.depdblock",
+         "/usr/share/php/.depdb",
+    },
+    "media-video/vlc": {
+         "/usr/lib64/vlc/plugins/plugins.dat",
+    },
+    "net-misc/openssh": {
+         "/etc/ssh/ssh_host_*",
+    },
+    "net-misc/teamviewer": {
+         "/etc/teamviewer*/global.conf",
+         "/opt/teamviewer*/rolloutfile.*",
+    },
+    "net-vpn/openvpn": {
+         "/etc/openvpn/*",
+    },
+    "sys-apps/lm-sensors": {
+         "/etc/modules-load.d/lm_sensors.conf",
+    },
+    "sys-fs/lvm2": {
+         "/etc/lvm/backup/*",
          "/etc/lvm/archive/*",
          "/etc/lvm/cache/.cache",
-	},
-	"sys-libs/cracklib": {
-	     "/usr/lib/cracklib_dict.*"
-	},
+    },
+    "sys-libs/cracklib": {
+         "/usr/lib/cracklib_dict.*"
+    },
 }
 
 # Every path defined in whitelist is ignored
@@ -305,11 +305,11 @@ def resolve_symlinks(*paths) -> Set[str]:
     )
 
 def package_exist(name: str) -> bool:
-	for file in glob(PORTAGE_DB + "/" + name + "-[1-9]*"):
-		if os.path.isdir(file):
-			return True
+    for file in glob(PORTAGE_DB + "/" + name + "-[1-9]*"):
+        if os.path.isdir(file):
+            return True
 
-	return False
+    return False
 
 def normalize_filenames(files: List[str]) -> Set[str]:
     """Normalizes a list of CONTENT and returns a set of absolute file paths"""
