@@ -4,6 +4,7 @@
 import argparse
 import itertools
 import os
+import psutil
 from glob import glob
 from pathlib import Path
 from typing import List, Set
@@ -30,7 +31,6 @@ WHITELIST = {
     "/etc/.gitignore",
     "/etc/.pwd.lock",
     "/etc/.updated",
-    "/etc/adjtime",
     "/etc/crypttab",
     "/etc/fstab",
     "/etc/group",
@@ -72,8 +72,6 @@ WHITELIST = {
     "/usr/bin/c89",
     "/usr/bin/c99",
     "/usr/lib/ccache",
-    "/etc/systemd/network",
-    "/etc/systemd/user",
     "/usr/lib64/gconv/gconv-modules.cache",
     "/usr/portage",
     "/usr/sbin/fix_libtool_files.sh",
@@ -94,7 +92,6 @@ WHITELIST = {
     "/var/lib/module-rebuild/moduledb",
     "/var/lib/portage",
     "/var/lib/sddm/.cache",
-    "/var/lib/systemd",
     "/var/lock",
     "/var/log",
     "/var/run",
@@ -218,10 +215,17 @@ def packages():
     if package_exist("sys-fs/lvm2"):
         WHITELIST.update({*glob("/etc/lvm/backup/*")})
         WHITELIST.update({*glob("/etc/lvm/archive/*")})
+        WHITELIST.update({"/etc/lvm/cache/.cache"})
 
     if package_exist("sys-libs/cracklib"):
         WHITELIST.update({*glob("/usr/lib/cracklib_dict.*")})
 
+    if check_process("systemd"):
+        WHITELIST.update({"/etc/systemd/network"})
+        WHITELIST.update({"/etc/systemd/user"})
+        WHITELIST.update({"/var/lib/systemd"})
+    else:
+        WHITELIST.update({"/etc/adjtime"})
 
 def main() -> None:
     args = parse_args()
@@ -267,6 +271,15 @@ def should_ignore_path(filepath: str) -> bool:
 
     return False
 
+def check_process(process_name: str) -> bool:
+    """
+    Check process is running based on name.
+    """
+    for proc in psutil.process_iter():
+        if proc.name() == process_name:
+            return True
+
+    return False
 
 def resolve_symlinks(*paths) -> Set[str]:
     return set(
@@ -275,7 +288,7 @@ def resolve_symlinks(*paths) -> Set[str]:
 
 def package_exist(name: str) -> bool:
 	for file in glob(PORTAGE_DB + "/" + name + "-[1-9]*"):
-		if os.path.isdir(file) :
+		if os.path.isdir(file):
 			return True
 
 	return False
