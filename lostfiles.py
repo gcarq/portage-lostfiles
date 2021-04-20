@@ -24,6 +24,102 @@ DIRS_TO_CHECK = {
     "/var",
 }
 
+PKG_PATHS = {
+	"app-admin/salt": {
+		"/etc/salt/minion.d/_schedule.conf",
+		"/etc/salt/minion_id",
+		"/etc/salt/pki/*",
+	},
+	"app-admin/system-config-printer": {
+	    "/usr/share/system-config-printer/*.pyc",
+	},
+	"app-editors/vim": {
+	    "/usr/share/vim/vim82/doc/tags",
+	},
+	"app-emulation/docker": {
+	    "/etc/docker/key.json",
+	},
+	"app-emulation/libvirt": {
+	     "/etc/libvirt/nwfilter/*.xml",
+	     "/etc/libvirt/qemu/*.xml",
+	     "/etc/libvirt/qemu/autostart/*.xml",
+	     "/etc/libvirt/qemu/networks/*.xml",
+	     "/etc/libvirt/qemu/networks/autostart/*.xml",
+	     "/etc/libvirt/storage/*.xml",
+	     "/etc/libvirt/storage/autostart/*.xml",
+	},
+	"app-i18n/ibus": {
+	     "/etc/dconf/db/ibus",
+	},
+	"app-text/docbook-xml-dtd": {
+	     "/etc/xml/catalog",
+	     "/etc/xml/docbook"
+	},
+	"dev-db/mariadb": {
+	     "/etc/mysql/mariadb.d/*.cnf"
+	},
+	"dev-lang/php": {
+	     "/etc/php/fpm*/fpm.d/*"
+	},
+	"dev-libs/nss": {
+	     "/usr/lib64/libfreebl3.chk",
+	     "/usr/lib64/libnssdbm3.chk",
+	     "/usr/lib64/libsoftokn3.chk",
+	},
+	"net-misc/dhcpcd": {
+	     "/etc/dhcpcd.duid",
+	},
+	"net-misc/dhcp": {
+	     "/etc/dhcp/dhclient-*.conf",
+	},
+	"net-misc/dahdi-tools": {
+	     "/etc/dahdi/assigned-spans.*",
+	     "/etc/dahdi/system.*",
+	},
+	"net-print/cups": {
+	     "/etc/printcap",
+	     "/etc/cups/classes.conf",
+	     "/etc/cups/ppd",
+	     "/etc/cups/ssl",
+	     "/etc/cups/printers.conf",
+	     "/etc/cups/subscriptions.conf",
+	     "/etc/cups/*.O",
+	},
+	"dev-php/PEAR-PEAR": {
+	     "/usr/share/php/.channels",
+	     "/usr/share/php/.packagexml",
+	     "/usr/share/php/.registry",
+	     "/usr/share/php/.filemap",
+	     "/usr/share/php/.lock",
+	     "/usr/share/php/.depdblock",
+	     "/usr/share/php/.depdb",
+	},
+	"media-video/vlc": {
+	     "/usr/lib64/vlc/plugins/plugins.dat",
+	},
+	"net-misc/openssh": {
+	     "/etc/ssh/ssh_host_*",
+	},
+	"net-misc/teamviewer": {
+	     "/etc/teamviewer*/global.conf",
+	     "/opt/teamviewer*/rolloutfile.*",
+	},
+	"net-vpn/openvpn": {
+	     "/etc/openvpn/*",
+	},
+	"sys-apps/lm-sensors": {
+	     "/etc/modules-load.d/lm_sensors.conf",
+	},
+	"sys-fs/lvm2": {
+	     "/etc/lvm/backup/*",
+         "/etc/lvm/archive/*",
+         "/etc/lvm/cache/.cache",
+	},
+	"sys-libs/cracklib": {
+	     "/usr/lib/cracklib_dict.*"
+	},
+}
+
 # Every path defined in whitelist is ignored
 WHITELIST = {
     "/etc/.etckeeper",
@@ -131,103 +227,16 @@ def parse_args() -> argparse.Namespace:
     )
     return parser.parse_args()
 
-def packages():
-    if package_exist("app-admin/salt"):
-        WHITELIST.update({"/etc/salt/minion.d/_schedule.conf"})
-        WHITELIST.update({"/etc/salt/minion_id"})
-        WHITELIST.update({*glob("/etc/salt/pki/*")})
-
-    if package_exist("app-admin/system-config-printer"):
-        WHITELIST.update({*glob("/usr/share/system-config-printer/*.pyc")})
-
-    if package_exist("app-editors/vim"):
-        WHITELIST.update({"/usr/share/vim/vim82/doc/tags"})
-
-    if package_exist("app-emulation/docker"):
-        WHITELIST.update({"/etc/docker/key.json"})
-
-    if package_exist("app-emulation/libvirt"):
-        WHITELIST.update({*glob("/etc/libvirt/nwfilter/*.xml")})
-        WHITELIST.update({*glob("/etc/libvirt/qemu/*.xml")})
-        WHITELIST.update({*glob("/etc/libvirt/qemu/autostart/*.xml")})
-        WHITELIST.update({*glob("/etc/libvirt/qemu/networks/*.xml")})
-        WHITELIST.update({*glob("/etc/libvirt/qemu/networks/autostart/*.xml")})
-        WHITELIST.update({*glob("/etc/libvirt/storage/*.xml")})
-        WHITELIST.update({*glob("/etc/libvirt/storage/autostart/*.xml")})
-
-    if package_exist("app-i18n/ibus"):
-        WHITELIST.update({"/etc/dconf/db/ibus"})
-
-    if package_exist("app-text/docbook-xml-dtd"):
-        WHITELIST.update({"/etc/xml/catalog"})
-        WHITELIST.update({"/etc/xml/docbook"})
+def installed_packages():
+    for pkg, dirs in PKG_PATHS.items():
+        if package_exist(pkg):
+            for dir in dirs:
+                for file in glob(dir):
+                    WHITELIST.update({file})
 
     if package_exist("app-office/libreoffice") or package_exist("app-office/libreoffice-bin"):
         WHITELIST.update({"/usr/lib64/libreoffice/program/resource/common/fonts/.uuid"})
         WHITELIST.update({"/usr/lib64/libreoffice/share/fonts/truetype/.uuid"})
-
-    if package_exist("dev-db/mariadb"):
-        WHITELIST.update({*glob("/etc/mysql/mariadb.d/*.cnf")})
-
-    if package_exist("dev-lang/php"):
-        WHITELIST.update({*glob("/etc/php/fpm*/fpm.d/*")})
-
-    if package_exist("dev-libs/nss"):
-        WHITELIST.update({"/usr/lib64/libfreebl3.chk"})
-        WHITELIST.update({"/usr/lib64/libnssdbm3.chk"})
-        WHITELIST.update({"/usr/lib64/libsoftokn3.chk"})
-
-    if package_exist("net-misc/dhcpcd"):
-        WHITELIST.update({"/etc/dhcpcd.duid"})
-
-    if package_exist("net-misc/dhcp"):
-        WHITELIST.update({*glob("/etc/dhcp/dhclient-*.conf")})
-
-    if package_exist("net-misc/dahdi-tools"):
-        WHITELIST.update({*glob("/etc/dahdi/assigned-spans.*")})
-        WHITELIST.update({*glob("/etc/dahdi/system.*")})
-
-    if package_exist("net-print/cups"):
-        WHITELIST.update({"/etc/printcap"})
-        WHITELIST.update({"/etc/cups/classes.conf"})
-        WHITELIST.update({"/etc/cups/ppd"})
-        WHITELIST.update({"/etc/cups/ssl"})
-        WHITELIST.update({"/etc/cups/printers.conf"})
-        WHITELIST.update({"/etc/cups/subscriptions.conf"})
-        WHITELIST.update({*glob("/etc/cups/*.O")})
-
-    if package_exist("dev-php/PEAR-PEAR"):
-        WHITELIST.update({"/usr/share/php/.channels"})
-        WHITELIST.update({"/usr/share/php/.packagexml"})
-        WHITELIST.update({"/usr/share/php/.registry"})
-        WHITELIST.update({"/usr/share/php/.filemap"})
-        WHITELIST.update({"/usr/share/php/.lock"})
-        WHITELIST.update({"/usr/share/php/.depdblock"})
-        WHITELIST.update({"/usr/share/php/.depdb"})
-
-    if package_exist("media-video/vlc"):
-        WHITELIST.update({"/usr/lib64/vlc/plugins/plugins.dat"})
-
-    if package_exist("net-misc/openssh"):
-        WHITELIST.update({*glob("/etc/ssh/ssh_host_*")})
-
-    if package_exist("net-misc/teamviewer"):
-        WHITELIST.update({*glob("/etc/teamviewer*/global.conf")})
-        WHITELIST.update({*glob("/opt/teamviewer*/rolloutfile.*")})
-
-    if package_exist("net-vpn/openvpn"):
-        WHITELIST.update({*glob("/etc/openvpn/*")})
-
-    if package_exist("sys-apps/lm-sensors"):
-        WHITELIST.update({"/etc/modules-load.d/lm_sensors.conf"})
-
-    if package_exist("sys-fs/lvm2"):
-        WHITELIST.update({*glob("/etc/lvm/backup/*")})
-        WHITELIST.update({*glob("/etc/lvm/archive/*")})
-        WHITELIST.update({"/etc/lvm/cache/.cache"})
-
-    if package_exist("sys-libs/cracklib"):
-        WHITELIST.update({*glob("/usr/lib/cracklib_dict.*")})
 
     if check_process("systemd"):
         WHITELIST.update({"/etc/systemd/network"})
@@ -241,7 +250,7 @@ def main() -> None:
     dirs_to_check = args.paths or DIRS_TO_CHECK
     tracked = collect_tracked_files()
 
-    packages()
+    installed_packages()
 
     for dirname in dirs_to_check:
 
