@@ -296,7 +296,7 @@ def resolve_symlinks(*paths) -> Set[str]:
     )
 
 def package_exist(name: str) -> bool:
-	for file in f"{PORTAGE_DB}/{name}-[1-9]*":
+	for file in glob(PORTAGE_DB + "/" + name + "-[1-9]*"):
 		if os.path.isdir(file):
 			return True
 
