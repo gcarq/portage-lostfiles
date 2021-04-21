@@ -63,12 +63,14 @@ PKG_PATHS = {
         "/etc/php/fpm*/fpm.d/*"
     },
     "dev-libs/nss": {
-        "/usr/lib32/libfreebl3.chk",
-        "/usr/lib64/libfreebl3.chk",
-        "/usr/lib32/libnssdbm3.chk",
-        "/usr/lib64/libnssdbm3.chk",
-        "/usr/lib32/libsoftokn3.chk",
-        "/usr/lib64/libsoftokn3.chk",
+        "/usr/lib*/libfreebl3.chk",
+        "/usr/lib*/libnssdbm3.chk",
+        "/usr/lib*/libsoftokn3.chk",
+    },
+    "net-dns/bind": {
+       "/etc/bind/rndc.key",
+       "/etc/bind/rndc.conf",
+       "/var/bind"
     },
     "net-misc/dhcpcd": {
         "/etc/dhcpcd.duid",
@@ -98,8 +100,34 @@ PKG_PATHS = {
         "/usr/share/php/.depdblock",
         "/usr/share/php/.depdb",
     },
+    "mail-filter/rspamd": {
+        "etc/rspamd/local.d/*",
+    },
+    "mail-mta/exim": {
+        "/etc/exim/exim.conf",
+    },
     "media-video/vlc": {
-        "/usr/lib64/vlc/plugins/plugins.dat",
+        "/usr/lib*/vlc/plugins/plugins.dat",
+    },
+    "net-analyzer/librenms": {
+        "/opt/librenms/.composer",
+        "/opt/librenms/bootstrap/cache",
+        "/opt/librenms/config.php",
+        "/opt/librenms/logs/",
+        "opt/librenms/rrd/",
+        "/opt/librenms/vendor",
+    },
+    "net-analyzer/net-snmp": {
+        "/etc/snmp/snmpd.conf",
+    },
+    "net-firewall/firehol": {
+        "/etc/firehol/firehol.conf",
+        "/etc/firehol/ipsets/*",
+        "/etc/firehol/ipsets/.cache",
+        "/etc/firehol/services/*",
+    },
+    "net-misc/geoipupdate": {
+        "/usr/share/GeoIP/",
     },
     "net-misc/openssh": {
         "/etc/ssh/ssh_host_*",
@@ -107,6 +135,9 @@ PKG_PATHS = {
     "net-misc/teamviewer": {
         "/etc/teamviewer*/global.conf",
         "/opt/teamviewer*/rolloutfile.*",
+    },
+    "net-ftp/proftpd": {
+        "/etc/proftpd/proftpd.conf",
     },
     "net-vpn/openvpn": {
         "/etc/openvpn/*",
@@ -120,8 +151,16 @@ PKG_PATHS = {
         "/etc/lvm/cache/.cache",
     },
     "sys-libs/cracklib": {
-        "/usr/lib32/cracklib_dict.*",
-        "/usr/lib64/cracklib_dict.*",
+        "/usr/lib*/cracklib_dict.*",
+    },
+    "www-apps/guacamole-client": {
+        "etc/guacamole/lib/*",
+    },
+    "www-servers/tomcat": {
+        "/etc/conf.d/tomcat-*",
+        "/etc/init.d/tomcat-*",
+        "/etc/tomcat-*",
+        "/var/lib/tomcat-*",
     },
 }
 
@@ -174,7 +213,6 @@ WHITELIST = {
     "/usr/bin/c89",
     "/usr/bin/c99",
     "/usr/lib/ccache",
-    "/usr/lib64/gconv/gconv-modules.cache",
     "/usr/portage",
     "/usr/sbin/fix_libtool_files.sh",
     "/usr/share/applications/mimeinfo.cache",
@@ -204,7 +242,8 @@ WHITELIST = {
     *glob("/usr/share/gcc-data/*/*/info/dir"),
     *glob("/usr/share/binutils-data/*/*/info/dir"),
     *glob("/lib*/modules"),  # Ignore all kernel modules
-    *glob("/usr/lib*/locale/locale-archive"),
+    *glob("/usr/lib*/gconv/gconv-modules.cache"), # used by glibc
+    *glob("/usr/lib*/locale/locale-archive"), # used by glibc
     *glob("/usr/share/.mono/*/Trust"),
     *glob("/usr/share/icons/*/icon-theme.cache"),
     *glob("/usr/share/fonts/**/.uuid", recursive=True),
@@ -242,10 +281,8 @@ def installed_packages():
                     WHITELIST.update({file})
 
     if package_exist("app-office/libreoffice") or package_exist("app-office/libreoffice-bin"):
-        WHITELIST.update({"/usr/lib32/libreoffice/program/resource/common/fonts/.uuid"})
-        WHITELIST.update({"/usr/lib64/libreoffice/program/resource/common/fonts/.uuid"})
-        WHITELIST.update({"/usr/lib32/libreoffice/share/fonts/truetype/.uuid"})
-        WHITELIST.update({"/usr/lib64/libreoffice/share/fonts/truetype/.uuid"})
+        WHITELIST.update({*glob("/usr/lib*/libreoffice/program/resource/common/fonts/.uuid")})
+        WHITELIST.update({*glob("/usr/lib*/libreoffice/share/fonts/truetype/.uuid")})
 
     if check_process("systemd"):
         WHITELIST.update({"/etc/systemd/network"})
