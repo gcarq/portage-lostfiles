@@ -31,8 +31,22 @@ PKG_PATHS = {
         "/etc/salt/minion_id",
         "/etc/salt/pki/*",
     },
+    "app-admin/sudo": {
+        "/etc/sudoers.d",
+    },
     "app-admin/system-config-printer": {
         "/usr/share/system-config-printer/*.pyc",
+    },
+    "app-backup/bareos": {
+        "/etc/bareos/*/*/*.conf"
+    },
+    "app-crypt/certbot": {
+        "/etc/letsencrypt/accounts",
+        "/etc/letsencrypt/archive",
+        "/etc/letsencrypt/csr/*.pem",
+        "/etc/letsencrypt/keys/*.pem",
+        "/etc/letsencrypt/live",
+        "/etc/letsencrypt/renewal/*.conf",
     },
     "app-editors/vim": {
         "/usr/share/vim/vim82/doc/tags",
@@ -60,17 +74,27 @@ PKG_PATHS = {
         "/etc/mysql/mariadb.d/*.cnf",
     },
     "dev-lang/php": {
-        "/etc/php/fpm*/fpm.d/*"
+        "/etc/php/fpm*/fpm.d/*",
     },
     "dev-libs/nss": {
         "/usr/lib*/libfreebl3.chk",
         "/usr/lib*/libnssdbm3.chk",
         "/usr/lib*/libsoftokn3.chk",
     },
+    "net-dialup/ppp": {
+        "/etc/ppp/chap-secrets",
+        "/etc/ppp/pap-secrets",
+        "/etc/ppp/ip-down.d",
+        "/etc/ppp/ip-up.d",
+    },
     "net-dns/bind": {
-       "/etc/bind/rndc.key",
-       "/etc/bind/rndc.conf",
-       "/var/bind"
+        "/etc/bind/rndc.key",
+        "/etc/bind/rndc.conf",
+        "/var/bind",
+    },
+    "net-fs/samba": {
+        "/etc/samba/smb.conf",
+        "/etc/samba/smbusers",
     },
     "net-misc/dhcpcd": {
         "/etc/dhcpcd.duid",
@@ -91,6 +115,9 @@ PKG_PATHS = {
         "/etc/cups/subscriptions.conf",
         "/etc/cups/*.O",
     },
+    "dev-lang/mono": {
+        "/usr/share/.mono/*/Trust",
+    },
     "dev-php/PEAR-PEAR": {
         "/usr/share/php/.channels",
         "/usr/share/php/.packagexml",
@@ -101,7 +128,10 @@ PKG_PATHS = {
         "/usr/share/php/.depdb",
     },
     "mail-filter/rspamd": {
-        "etc/rspamd/local.d/*",
+        "/etc/rspamd/local.d/*",
+    },
+    "mail-filter/spamassassin": {
+        "/etc/mail/spamassassin/sa-update-keys",
     },
     "mail-mta/exim": {
         "/etc/exim/exim.conf",
@@ -109,12 +139,15 @@ PKG_PATHS = {
     "media-video/vlc": {
         "/usr/lib*/vlc/plugins/plugins.dat",
     },
+    "media-gfx/graphviz": {
+        "/usr/lib*/graphviz/config6",
+    },
     "net-analyzer/librenms": {
         "/opt/librenms/.composer",
         "/opt/librenms/bootstrap/cache",
         "/opt/librenms/config.php",
         "/opt/librenms/logs/",
-        "opt/librenms/rrd/",
+        "/opt/librenms/rrd/",
         "/opt/librenms/vendor",
     },
     "net-analyzer/net-snmp": {
@@ -122,12 +155,12 @@ PKG_PATHS = {
     },
     "net-firewall/firehol": {
         "/etc/firehol/firehol.conf",
-        "/etc/firehol/ipsets/*",
-        "/etc/firehol/ipsets/.cache",
-        "/etc/firehol/services/*",
+        "/etc/firehol/fireqos.conf",
+        "/etc/firehol/ipsets",
+        "/etc/firehol/services",
     },
     "net-misc/geoipupdate": {
-        "/usr/share/GeoIP/",
+        "/usr/share/GeoIP",
     },
     "net-misc/openssh": {
         "/etc/ssh/ssh_host_*",
@@ -140,25 +173,30 @@ PKG_PATHS = {
         "/etc/proftpd/proftpd.conf",
     },
     "net-vpn/openvpn": {
-        "/etc/openvpn/*",
+        "/etc/openvpn",
     },
     "sys-apps/lm-sensors": {
         "/etc/modules-load.d/lm_sensors.conf",
     },
+    "sys-fs/cryptsetup": {
+        "/etc/crypttab",
+    },
     "sys-fs/lvm2": {
-        "/etc/lvm/backup/*",
-        "/etc/lvm/archive/*",
+        "/etc/lvm/backup",
+        "/etc/lvm/archive",
         "/etc/lvm/cache/.cache",
     },
     "sys-libs/cracklib": {
         "/usr/lib*/cracklib_dict.*",
     },
     "www-apps/guacamole-client": {
-        "etc/guacamole/lib/*",
+        "/etc/guacamole/lib/*",
+        "/etc/guacamole/extensions/*.jar",
     },
     "www-servers/tomcat": {
         "/etc/conf.d/tomcat-*",
         "/etc/init.d/tomcat-*",
+        "/etc/runlevels/*/tomcat-*",
         "/etc/tomcat-*",
         "/var/lib/tomcat-*",
     },
@@ -171,7 +209,6 @@ WHITELIST = {
     "/etc/.gitignore",
     "/etc/.pwd.lock",
     "/etc/.updated",
-    "/etc/crypttab",
     "/etc/fstab",
     "/etc/group",
     "/etc/group-",
@@ -244,7 +281,6 @@ WHITELIST = {
     *glob("/lib*/modules"),  # Ignore all kernel modules
     *glob("/usr/lib*/gconv/gconv-modules.cache"), # used by glibc
     *glob("/usr/lib*/locale/locale-archive"), # used by glibc
-    *glob("/usr/share/.mono/*/Trust"),
     *glob("/usr/share/icons/*/icon-theme.cache"),
     *glob("/usr/share/fonts/**/.uuid", recursive=True),
     *glob("/usr/share/fonts/*/*.dir"),
