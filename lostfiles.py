@@ -26,6 +26,9 @@ DIRS_TO_CHECK = {
 }
 
 PKG_PATHS = {
+    "app-admin/logrotate": {
+        "/etc/logrotate.d",
+    },
     "app-admin/salt": {
         "/etc/salt/minion.d/_schedule.conf",
         "/etc/salt/minion_id",
@@ -315,6 +318,11 @@ def installed_packages():
             for dir in dirs:
                 for file in glob(dir):
                     WHITELIST.update({file})
+
+    if package_exist("sys-process/dcron") or package_exist("sys-process/cronie") or package_exist("sys-process/fcron"):
+        WHITELIST.update({"/etc/cron.daily"})
+        WHITELIST.update({"/etc/cron.monthly"})
+        WHITELIST.update({"/etc/cron.weekly"})
 
     if package_exist("app-office/libreoffice") or package_exist("app-office/libreoffice-bin"):
         WHITELIST.update({*glob("/usr/lib*/libreoffice/program/resource/common/fonts/.uuid")})
