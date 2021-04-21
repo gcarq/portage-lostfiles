@@ -5,6 +5,7 @@ import argparse
 import itertools
 import os
 import psutil
+import sys
 from glob import glob
 from pathlib import Path
 from typing import List, Set
@@ -246,6 +247,7 @@ def installed_packages():
         WHITELIST.update({"/etc/adjtime"})
 
 def main() -> None:
+    check_requirements()
     args = parse_args()
     dirs_to_check = args.paths or DIRS_TO_CHECK
     tracked = collect_tracked_files()
@@ -269,7 +271,6 @@ def main() -> None:
                     continue
 
                 print(filepath)
-
 
 def should_ignore_path(filepath: str) -> bool:
     """Relative path checks"""
@@ -305,7 +306,7 @@ def resolve_symlinks(*paths) -> Set[str]:
     )
 
 def package_exist(name: str) -> bool:
-    for file in glob(PORTAGE_DB + "/" + name + "-[1-9]*"):
+    for file in glob(PORTAGE_DB + "/" + name + "-[0-9]*"):
         if os.path.isdir(file):
             return True
 
@@ -343,7 +344,6 @@ def normalize_filenames(files: List[str]) -> Set[str]:
 
     return normalized
 
-
 def collect_tracked_files() -> Set[str]:
     """Returns a set of files tracked by portage"""
     files = set()
@@ -354,6 +354,10 @@ def collect_tracked_files() -> Set[str]:
     if not files:
         raise AssertionError("No tracked files found. This is probably a bug!")
     return files
+
+def check_requirements() -> None:
+    if not package_exist("app-portage/portage-lostfiles"):
+        sys.exit("It's a requirement to install with emerge app-portage/portage-lostfiles to run")
 
 if __name__ == "__main__":
     main()
