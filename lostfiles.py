@@ -41,83 +41,87 @@ PKG_PATHS = {
         "/etc/docker/key.json",
     },
     "app-emulation/libvirt": {
-         "/etc/libvirt/nwfilter/*.xml",
-         "/etc/libvirt/qemu/*.xml",
-         "/etc/libvirt/qemu/autostart/*.xml",
-         "/etc/libvirt/qemu/networks/*.xml",
-         "/etc/libvirt/qemu/networks/autostart/*.xml",
-         "/etc/libvirt/storage/*.xml",
-         "/etc/libvirt/storage/autostart/*.xml",
+        "/etc/libvirt/nwfilter/*.xml",
+        "/etc/libvirt/qemu/*.xml",
+        "/etc/libvirt/qemu/autostart/*.xml",
+        "/etc/libvirt/qemu/networks/*.xml",
+        "/etc/libvirt/qemu/networks/autostart/*.xml",
+        "/etc/libvirt/storage/*.xml",
+        "/etc/libvirt/storage/autostart/*.xml",
     },
     "app-i18n/ibus": {
-         "/etc/dconf/db/ibus",
+        "/etc/dconf/db/ibus",
     },
     "app-text/docbook-xml-dtd": {
-         "/etc/xml/catalog",
-         "/etc/xml/docbook"
+        "/etc/xml/catalog",
+        "/etc/xml/docbook",
     },
     "dev-db/mariadb": {
-         "/etc/mysql/mariadb.d/*.cnf"
+        "/etc/mysql/mariadb.d/*.cnf",
     },
     "dev-lang/php": {
-         "/etc/php/fpm*/fpm.d/*"
+        "/etc/php/fpm*/fpm.d/*"
     },
     "dev-libs/nss": {
-         "/usr/lib64/libfreebl3.chk",
-         "/usr/lib64/libnssdbm3.chk",
-         "/usr/lib64/libsoftokn3.chk",
+        "/usr/lib32/libfreebl3.chk",
+        "/usr/lib64/libfreebl3.chk",
+        "/usr/lib32/libnssdbm3.chk",
+        "/usr/lib64/libnssdbm3.chk",
+        "/usr/lib32/libsoftokn3.chk",
+        "/usr/lib64/libsoftokn3.chk",
     },
     "net-misc/dhcpcd": {
-         "/etc/dhcpcd.duid",
+        "/etc/dhcpcd.duid",
     },
     "net-misc/dhcp": {
-         "/etc/dhcp/dhclient-*.conf",
+        "/etc/dhcp/dhclient-*.conf",
     },
     "net-misc/dahdi-tools": {
-         "/etc/dahdi/assigned-spans.*",
-         "/etc/dahdi/system.*",
+        "/etc/dahdi/assigned-spans.*",
+        "/etc/dahdi/system.*",
     },
     "net-print/cups": {
-         "/etc/printcap",
-         "/etc/cups/classes.conf",
-         "/etc/cups/ppd",
-         "/etc/cups/ssl",
-         "/etc/cups/printers.conf",
-         "/etc/cups/subscriptions.conf",
-         "/etc/cups/*.O",
+        "/etc/printcap",
+        "/etc/cups/classes.conf",
+        "/etc/cups/ppd",
+        "/etc/cups/ssl",
+        "/etc/cups/printers.conf",
+        "/etc/cups/subscriptions.conf",
+        "/etc/cups/*.O",
     },
     "dev-php/PEAR-PEAR": {
-         "/usr/share/php/.channels",
-         "/usr/share/php/.packagexml",
-         "/usr/share/php/.registry",
-         "/usr/share/php/.filemap",
-         "/usr/share/php/.lock",
-         "/usr/share/php/.depdblock",
-         "/usr/share/php/.depdb",
+        "/usr/share/php/.channels",
+        "/usr/share/php/.packagexml",
+        "/usr/share/php/.registry",
+        "/usr/share/php/.filemap",
+        "/usr/share/php/.lock",
+        "/usr/share/php/.depdblock",
+        "/usr/share/php/.depdb",
     },
     "media-video/vlc": {
-         "/usr/lib64/vlc/plugins/plugins.dat",
+        "/usr/lib64/vlc/plugins/plugins.dat",
     },
     "net-misc/openssh": {
-         "/etc/ssh/ssh_host_*",
+        "/etc/ssh/ssh_host_*",
     },
     "net-misc/teamviewer": {
-         "/etc/teamviewer*/global.conf",
-         "/opt/teamviewer*/rolloutfile.*",
+        "/etc/teamviewer*/global.conf",
+        "/opt/teamviewer*/rolloutfile.*",
     },
     "net-vpn/openvpn": {
-         "/etc/openvpn/*",
+        "/etc/openvpn/*",
     },
     "sys-apps/lm-sensors": {
-         "/etc/modules-load.d/lm_sensors.conf",
+        "/etc/modules-load.d/lm_sensors.conf",
     },
     "sys-fs/lvm2": {
-         "/etc/lvm/backup/*",
-         "/etc/lvm/archive/*",
-         "/etc/lvm/cache/.cache",
+        "/etc/lvm/backup/*",
+        "/etc/lvm/archive/*",
+        "/etc/lvm/cache/.cache",
     },
     "sys-libs/cracklib": {
-         "/usr/lib/cracklib_dict.*"
+        "/usr/lib32/cracklib_dict.*",
+        "/usr/lib64/cracklib_dict.*",
     },
 }
 
@@ -141,6 +145,7 @@ WHITELIST = {
     "/etc/localtime",
     "/etc/machine-id",
     "/etc/mtab",
+    "/etc/motd",
     "/etc/passwd",
     "/etc/passwd-",
     "/etc/portage",
@@ -195,6 +200,7 @@ WHITELIST = {
     "/var/spool",
     "/var/tmp",
     *glob("/etc/ssl/*"),
+    *glob("/etc/sysctl.d/*"),
     *glob("/usr/share/gcc-data/*/*/info/dir"),
     *glob("/usr/share/binutils-data/*/*/info/dir"),
     *glob("/lib*/modules"),  # Ignore all kernel modules
@@ -236,7 +242,9 @@ def installed_packages():
                     WHITELIST.update({file})
 
     if package_exist("app-office/libreoffice") or package_exist("app-office/libreoffice-bin"):
+        WHITELIST.update({"/usr/lib32/libreoffice/program/resource/common/fonts/.uuid"})
         WHITELIST.update({"/usr/lib64/libreoffice/program/resource/common/fonts/.uuid"})
+        WHITELIST.update({"/usr/lib32/libreoffice/share/fonts/truetype/.uuid"})
         WHITELIST.update({"/usr/lib64/libreoffice/share/fonts/truetype/.uuid"})
 
     if check_process("systemd"):
@@ -245,9 +253,9 @@ def installed_packages():
         WHITELIST.update({"/var/lib/systemd"})
     else:
         WHITELIST.update({"/etc/adjtime"})
+        WHITELIST.update({"/etc/conf.d/net"})
 
 def main() -> None:
-    check_requirements()
     args = parse_args()
     dirs_to_check = args.paths or DIRS_TO_CHECK
     tracked = collect_tracked_files()
@@ -354,10 +362,6 @@ def collect_tracked_files() -> Set[str]:
     if not files:
         raise AssertionError("No tracked files found. This is probably a bug!")
     return files
-
-def check_requirements() -> None:
-    if not package_exist("app-portage/portage-lostfiles"):
-        sys.exit("It's a requirement to install with emerge app-portage/portage-lostfiles to run")
 
 if __name__ == "__main__":
     main()
