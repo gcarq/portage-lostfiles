@@ -5,6 +5,7 @@ import argparse
 import itertools
 import os
 import psutil
+import time
 from glob import glob
 from pathlib import Path
 from typing import List, Set
@@ -295,6 +296,8 @@ WHITELIST = {
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--strict", help="run in strict mode", action="store_true")
+    parser.add_argument("-e", "--expand", help="show last modified date and file size", action="store_true")
+    parser.add_argument("--human", help="print sizes in human readable format (e.g., 1K 234M 2G)", action="store_true")
     parser.add_argument(
         "-p",
         "--path",
@@ -345,6 +348,9 @@ def main() -> None:
 
     installed_packages()
 
+    TotalFiles: int = 0
+    TotalSize: int = 0
+
     for dirname in dirs_to_check:
 
         for dirpath, dirnames, filenames in os.walk(dirname, topdown=True):
@@ -361,7 +367,60 @@ def main() -> None:
                 if args.strict is False and should_ignore_path(filepath):
                     continue
 
-                print(filepath)
+                TotalFiles += 1
+                if args.expand is True and os.path.isfile(filepath):
+                    FileSize = os.path.getsize(filepath)
+                    FileTime = time.ctime(os.path.getmtime(filepath))
+                    TotalSize += FileSize
+                    if args.human is True:
+                        FileSize = formatSize(FileSize)
+                    else:
+                        FileSize = str(FileSize)
+                    print(filepath + " | " + FileTime + " | " + FileSize)
+                else:
+                    print(filepath)
+
+    if args.expand is True:
+        print("-------------")
+        print("Total files: " + str(TotalSize))
+        if args.human is True:
+            TotalSize = formatSize(TotalSize)
+        print("Total file size: " + str(TotalSize))
+
+
+def formatSize(sizeInBytes: int, decimalNum: int = 2, isUnitWithI: bool = False, sizeUnitSeperator: str = "") -> str:
+    """format size to human readable string"""
+    # https://en.wikipedia.org/wiki/Binary_prefix#Specific_units_of_IEC_60027-2_A.2_and_ISO.2FIEC_80000
+    # K=kilo, M=mega, G=giga, T=tera, P=peta, E=exa, Z=zetta, Y=yotta
+    sizeUnitList = ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z']
+    largestUnit = 'Y'
+
+    if isUnitWithI:
+        sizeUnitListWithI = []
+        for curIdx, eachUnit in enumerate(sizeUnitList):
+            unitWithI = eachUnit
+            if curIdx >= 1:
+                unitWithI += 'i'
+            sizeUnitListWithI.append(unitWithI)
+
+        # sizeUnitListWithI = ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']
+        sizeUnitList = sizeUnitListWithI
+
+        largestUnit += 'i'
+
+    suffix = "B"
+    decimalFormat = "." + str(decimalNum) + "f"  # ".1f"
+    finalFormat = "%" + decimalFormat + sizeUnitSeperator + "%s%s"  # "%.1f%s%s"
+    sizeNum = sizeInBytes
+    for sizeUnit in sizeUnitList:
+        if abs(sizeNum) < 1024.0:
+            if (isinstance(sizeNum, int)):
+                return ("%i" + sizeUnitSeperator + "%s%s") % (sizeNum, sizeUnit, suffix)
+            else:
+                return finalFormat % (sizeNum, sizeUnit, suffix)
+        sizeNum /= 1024.0
+
+    return finalFormat % (sizeNum, largestUnit, suffix)
 
 
 def should_ignore_path(filepath: str) -> bool:
