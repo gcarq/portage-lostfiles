@@ -24,6 +24,7 @@ setup(
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
     python_requires=">=3.6",
+    install_requires=['psutil'],
     classifiers=[
         "Topic :: Utilities",
         "Environment :: Console",
