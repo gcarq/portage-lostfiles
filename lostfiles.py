@@ -5,7 +5,6 @@ import argparse
 import itertools
 import os
 import psutil
-import sys
 from glob import glob
 from pathlib import Path
 from typing import List, Set
@@ -282,8 +281,8 @@ WHITELIST = {
     *glob("/usr/share/gcc-data/*/*/info/dir"),
     *glob("/usr/share/binutils-data/*/*/info/dir"),
     *glob("/lib*/modules"),  # Ignore all kernel modules
-    *glob("/usr/lib*/gconv/gconv-modules.cache"), # used by glibc
-    *glob("/usr/lib*/locale/locale-archive"), # used by glibc
+    *glob("/usr/lib*/gconv/gconv-modules.cache"),  # used by glibc
+    *glob("/usr/lib*/locale/locale-archive"),  # used by glibc
     *glob("/usr/share/icons/*/icon-theme.cache"),
     *glob("/usr/share/fonts/**/.uuid", recursive=True),
     *glob("/usr/share/fonts/*/*.dir"),
@@ -291,6 +290,7 @@ WHITELIST = {
     *glob("/usr/src/linux*"),  # Ignore kernel source directories
     *glob("/var/www/*"),
 }
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
@@ -312,11 +312,12 @@ def parse_args() -> argparse.Namespace:
     )
     return parser.parse_args()
 
+
 def installed_packages():
-    for pkg, dirs in PKG_PATHS.items():
+    for pkg, directories in PKG_PATHS.items():
         if package_exist(pkg):
-            for dir in dirs:
-                for file in glob(dir):
+            for directory in directories:
+                for file in glob(directory):
                     WHITELIST.update({file})
 
     if package_exist("sys-process/dcron") or package_exist("sys-process/cronie") or package_exist("sys-process/fcron"):
@@ -335,6 +336,7 @@ def installed_packages():
     else:
         WHITELIST.update({"/etc/adjtime"})
         WHITELIST.update({"/etc/conf.d/net"})
+
 
 def main() -> None:
     args = parse_args()
@@ -361,6 +363,7 @@ def main() -> None:
 
                 print(filepath)
 
+
 def should_ignore_path(filepath: str) -> bool:
     """Relative path checks"""
 
@@ -379,6 +382,7 @@ def should_ignore_path(filepath: str) -> bool:
 
     return False
 
+
 def check_process(process_name: str) -> bool:
     """
     Check process is running based on name.
@@ -389,10 +393,12 @@ def check_process(process_name: str) -> bool:
 
     return False
 
+
 def resolve_symlinks(*paths) -> Set[str]:
     return set(
         itertools.chain.from_iterable((path, os.path.realpath(path)) for path in paths)
     )
+
 
 def package_exist(name: str) -> bool:
     for file in glob(PORTAGE_DB + "/" + name + "-[0-9]*"):
@@ -400,6 +406,7 @@ def package_exist(name: str) -> bool:
             return True
 
     return False
+
 
 def normalize_filenames(files: List[str]) -> Set[str]:
     """Normalizes a list of CONTENT and returns a set of absolute file paths"""
@@ -433,6 +440,7 @@ def normalize_filenames(files: List[str]) -> Set[str]:
 
     return normalized
 
+
 def collect_tracked_files() -> Set[str]:
     """Returns a set of files tracked by portage"""
     files = set()
@@ -443,6 +451,7 @@ def collect_tracked_files() -> Set[str]:
     if not files:
         raise AssertionError("No tracked files found. This is probably a bug!")
     return files
+
 
 if __name__ == "__main__":
     main()
