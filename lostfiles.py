@@ -295,9 +295,10 @@ WHITELIST = {
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--strict", help="run in strict mode", action="store_true")
-    parser.add_argument("-e", "--expand", help="show last modified date and file size", action="store_true")
+    parser.add_argument("--age", help="show the age of the file in seconds, hours or days", action="store_true")
     parser.add_argument("--human", help="print sizes in human readable format (e.g., 1K 234M 2G)", action="store_true")
+    parser.add_argument("--strict", help="run in strict mode", action="store_true")
+    parser.add_argument("--verbose", help="show last modified date and file size", action="store_true")
     parser.add_argument(
         "-p",
         "--path",
@@ -368,24 +369,47 @@ def main() -> None:
                     continue
 
                 TotalFiles += 1
-                if args.expand is True and os.path.isfile(filepath):
+                if args.verbose is True and os.path.isfile(filepath):
                     FileSize = os.path.getsize(filepath)
-                    FileTime = time.ctime(os.path.getmtime(filepath))
+                    FileTime = os.path.getmtime(filepath)
+
                     TotalSize += FileSize
+
+                    if args.age is True:
+                        FileTime = formtAge(FileTime)
+                    else:
+                        FileTime = time.ctime(FileTime)
+
                     if args.human is True:
                         FileSize = formatSize(FileSize)
                     else:
                         FileSize = str(FileSize)
+
                     print(filepath + " | " + FileTime + " | " + FileSize)
                 else:
                     print(filepath)
 
-    if args.expand is True:
+    if args.verbose is True:
         print("-------------")
         print("Total files: " + str(TotalSize))
         if args.human is True:
             TotalSize = formatSize(TotalSize)
         print("Total file size: " + str(TotalSize))
+
+
+def formtAge(FileTime: int) -> str:
+    timeUnitList = (
+        ('s', 60),
+        ('m', 60),
+        ('h', 24),
+    )
+    age = time.time() - FileTime
+    for unit, step in timeUnitList:
+        if (age < step):
+            return "%i%s" % (age, unit)
+        age = age / step
+
+    return "%i%s" % (age, "d")
 
 
 def formatSize(sizeInBytes: int, decimalNum: int = 2, isUnitWithI: bool = False, sizeUnitSeperator: str = "") -> str:
