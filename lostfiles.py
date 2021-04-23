@@ -407,7 +407,7 @@ def main() -> None:
         print("-------------")
         print("Total files: " + str(totalSize))
         if args.human is True:
-            totalSize = formatSize(totalSize)
+            totalSize = format_size(totalSize)
         print("Total file size: " + str(totalSize))
 
 
