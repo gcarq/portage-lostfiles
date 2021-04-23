@@ -302,7 +302,13 @@ def parse_args() -> argparse.Namespace:
             action="append",
             metavar="PATH",
             dest="exclude",
-            help="append files or directories to whitelist"
+            help="append files or directories to whitelist",
+        )
+    parser.add_argument(
+            "-E",
+            "--excludeconfig",
+            help="append files or directories to whitelist from config file",
+            type=argparse.FileType('r'),
         )
     parser.add_argument("--human", help="print sizes in human readable format (e.g., 1K 234M 2G)", action="store_true")
     parser.add_argument("--strict", help="run in strict mode", action="store_true")
@@ -350,7 +356,7 @@ def installed_packages():
 
 def whitelist_append(directories: List[str]) -> None:
     for directory in directories:
-        for file in glob(directory):
+        for file in glob(directory.strip()):
             WHITELIST.update({file})
 
 
@@ -360,7 +366,11 @@ def main() -> None:
 
     tracked = collect_tracked_files()
 
-    whitelist_append(args.exclude)
+    if args.exclude:
+        whitelist_append(args.exclude)
+    if args.excludeconfig:
+        whitelist_append(args.excludeconfig.readlines())
+
     installed_packages()
 
     totalFiles: int = 0
