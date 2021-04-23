@@ -349,8 +349,8 @@ def main() -> None:
 
     installed_packages()
 
-    TotalFiles: int = 0
-    TotalSize: int = 0
+    totalFiles: int = 0
+    totalSize: int = 0
 
     for dirname in dirs_to_check:
 
@@ -368,42 +368,42 @@ def main() -> None:
                 if args.strict is False and should_ignore_path(filepath):
                     continue
 
-                TotalFiles += 1
+                totalFiles += 1
                 if args.verbose is True and os.path.isfile(filepath):
-                    FileSize = os.path.getsize(filepath)
-                    FileTime = os.path.getmtime(filepath)
+                    fileSize = os.path.getsize(filepath)
+                    fileTime = os.path.getmtime(filepath)
 
-                    TotalSize += FileSize
+                    totalSize += fileSize
 
                     if args.age is True:
-                        FileTime = formtAge(FileTime)
+                        fileTime = format_age(fileTime)
                     else:
-                        FileTime = time.ctime(FileTime)
+                        fileTime = time.ctime(fileTime)
 
                     if args.human is True:
-                        FileSize = formatSize(FileSize)
+                        fileSize = format_size(fileSize)
                     else:
-                        FileSize = str(FileSize)
+                        fileSize = str(fileSize)
 
-                    print(filepath + " | " + FileTime + " | " + FileSize)
+                    print(filepath + " | " + fileTime + " | " + fileSize)
                 else:
                     print(filepath)
 
     if args.verbose is True:
         print("-------------")
-        print("Total files: " + str(TotalSize))
+        print("Total files: " + str(totalSize))
         if args.human is True:
-            TotalSize = formatSize(TotalSize)
-        print("Total file size: " + str(TotalSize))
+            totalSize = formatSize(totalSize)
+        print("Total file size: " + str(totalSize))
 
 
-def formtAge(FileTime: int) -> str:
+def format_age(fileTime: int) -> str:
     timeUnitList = (
         ('s', 60),
         ('m', 60),
         ('h', 24),
     )
-    age = time.time() - FileTime
+    age = time.time() - fileTime
     for unit, step in timeUnitList:
         if (age < step):
             return "%i%s" % (age, unit)
@@ -412,7 +412,7 @@ def formtAge(FileTime: int) -> str:
     return "%i%s" % (age, "d")
 
 
-def formatSize(sizeInBytes: int, decimalNum: int = 2, isUnitWithI: bool = False, sizeUnitSeperator: str = "") -> str:
+def format_size(sizeInBytes: int, decimalNum: int = 2, isUnitWithI: bool = False, sizeUnitSeperator: str = "") -> str:
     """format size to human readable string"""
     # https://en.wikipedia.org/wiki/Binary_prefix#Specific_units_of_IEC_60027-2_A.2_and_ISO.2FIEC_80000
     # K=kilo, M=mega, G=giga, T=tera, P=peta, E=exa, Z=zetta, Y=yotta
