@@ -296,6 +296,7 @@ WHITELIST = {
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--age", help="show the age of the file in seconds, hours or days", action="store_true")
+    parser.add_argument("--ask", help="ask to remove each file", action="store_true")
     parser.add_argument(
             "-e",
             "--exclude",
@@ -360,6 +361,29 @@ def whitelist_append(directories: List[str]) -> None:
             WHITELIST.update({file})
 
 
+def yes_no(question: str, default: bool or None = None) -> bool:
+    if default is None:
+        prompt = " [y/n]"
+    elif default is True:
+        prompt = " [Y/n]"
+    elif default is False:
+        prompt = " [y/N]"
+
+    yes = set(['yes', 'y', 'true'])
+    no = set(['no', 'n', 'false'])
+
+    while True:
+        choice = input(question + prompt + "? ").strip().lower()
+        if not choice and default is not None:
+            return default
+        elif choice in yes:
+            return True
+        elif choice in no:
+            return False
+        else:
+            print("Please respond with ({} ".format(", ".join(yes)) + ",{}".format(", ".join(no)) + ")\n")
+
+
 def main() -> None:
     args = parse_args()
     dirs_to_check = args.paths or DIRS_TO_CHECK
@@ -374,6 +398,7 @@ def main() -> None:
     installed_packages()
 
     totalFiles: int = 0
+    totalFilesRemove: int = 0
     totalSize: int = 0
 
     for dirname in dirs_to_check:
@@ -413,9 +438,16 @@ def main() -> None:
                 else:
                     print(filepath)
 
+                if args.ask is True:
+                    if yes_no("Remove", False):
+                        os.remove(filepath)
+                        totalFilesRemove += 1
+
     if args.verbose is True:
         print("-------------")
-        print("Total files: " + str(totalSize))
+        print("Total files: " + str(totalFiles))
+        if args.ask is True:
+            print("Total files removed: " + str(totalFilesRemove))
         if args.human is True:
             totalSize = format_size(totalSize)
         print("Total file size: " + str(totalSize))
