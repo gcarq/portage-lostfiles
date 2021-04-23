@@ -296,6 +296,14 @@ WHITELIST = {
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--age", help="show the age of the file in seconds, hours or days", action="store_true")
+    parser.add_argument(
+            "-e",
+            "--exclude",
+            action="append",
+            metavar="PATH",
+            dest="exclude",
+            help="append files or directories to whitelist"
+        )
     parser.add_argument("--human", help="print sizes in human readable format (e.g., 1K 234M 2G)", action="store_true")
     parser.add_argument("--strict", help="run in strict mode", action="store_true")
     parser.add_argument("--verbose", help="show last modified date and file size", action="store_true")
@@ -320,9 +328,7 @@ def parse_args() -> argparse.Namespace:
 def installed_packages():
     for pkg, directories in PKG_PATHS.items():
         if package_exist(pkg):
-            for directory in directories:
-                for file in glob(directory):
-                    WHITELIST.update({file})
+            whitelist_append(directories)
 
     if package_exist("sys-process/dcron") or package_exist("sys-process/cronie") or package_exist("sys-process/fcron"):
         WHITELIST.update({"/etc/cron.daily"})
@@ -342,11 +348,19 @@ def installed_packages():
         WHITELIST.update({"/etc/conf.d/net"})
 
 
+def whitelist_append(directories: List[str]) -> None:
+    for directory in directories:
+        for file in glob(directory):
+            WHITELIST.update({file})
+
+
 def main() -> None:
     args = parse_args()
     dirs_to_check = args.paths or DIRS_TO_CHECK
+
     tracked = collect_tracked_files()
 
+    whitelist_append(args.exclude)
     installed_packages()
 
     totalFiles: int = 0
