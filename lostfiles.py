@@ -468,7 +468,7 @@ def format_age(fileTime: int) -> str:
     return "%i%s" % (age, "d")
 
 
-def format_size(sizeInBytes: int, decimalNum: int = 2, isUnitWithI: bool = False, sizeUnitSeperator: str = "") -> str:
+def format_size(sizeInBytes: int, decimalNum: int = 2, isUnitWithI: bool = False, sizeUnitSeparator: str = "") -> str:
     """format size to human readable string"""
     # https://en.wikipedia.org/wiki/Binary_prefix#Specific_units_of_IEC_60027-2_A.2_and_ISO.2FIEC_80000
     # K=kilo, M=mega, G=giga, T=tera, P=peta, E=exa, Z=zetta, Y=yotta
@@ -490,12 +490,12 @@ def format_size(sizeInBytes: int, decimalNum: int = 2, isUnitWithI: bool = False
 
     suffix = "B"
     decimalFormat = "." + str(decimalNum) + "f"  # ".1f"
-    finalFormat = "%" + decimalFormat + sizeUnitSeperator + "%s%s"  # "%.1f%s%s"
+    finalFormat = "%" + decimalFormat + sizeUnitSeparator + "%s%s"  # "%.1f%s%s"
     sizeNum = sizeInBytes
     for sizeUnit in sizeUnitList:
         if abs(sizeNum) < 1024.0:
             if (isinstance(sizeNum, int)):
-                return ("%i" + sizeUnitSeperator + "%s%s") % (sizeNum, sizeUnit, suffix)
+                return ("%i" + sizeUnitSeparator + "%s%s") % (sizeNum, sizeUnit, suffix)
             else:
                 return finalFormat % (sizeNum, sizeUnit, suffix)
         sizeNum /= 1024.0
