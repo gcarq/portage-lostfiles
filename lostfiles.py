@@ -585,7 +585,9 @@ def collect_tracked_files() -> Set[str]:
     files = set()
     for filename in Path(PORTAGE_DB).glob("**/CONTENTS"):
         with open(str(filename), mode="r") as fp:
-            files.update(normalize_filenames(fp.readlines()))
+            for line in fp.readlines():
+                line = line.encode("utf-8", "replace").decode()
+                files.update(normalize_filenames({line}))
 
     if not files:
         raise AssertionError("No tracked files found. This is probably a bug!")
