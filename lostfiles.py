@@ -420,10 +420,7 @@ def main() -> None:
                 totalFiles += 1
                 msg = ""
                 if args.verbose is True and os.path.exists(filepath):
-                    fileSize = os.path.getsize(filepath)
                     fileTime = os.path.getmtime(filepath)
-
-                    totalSize += fileSize
 
                     if args.age is True:
                         fileTime = format_age(fileTime)
@@ -431,7 +428,10 @@ def main() -> None:
                         fileTime = time.ctime(fileTime)
                     msg = " | " + fileTime
 
-                    if os.path.isfile(filepath):
+                    if not os.path.islink(filepath):
+                        fileSize = os.path.getsize(filepath)
+                        totalSize += fileSize
+
                         if args.human is True:
                             fileSize = format_size(fileSize)
                         else:
