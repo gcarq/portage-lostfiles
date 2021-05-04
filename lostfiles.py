@@ -418,7 +418,8 @@ def main() -> None:
                     continue
 
                 totalFiles += 1
-                if args.verbose is True and os.path.isfile(filepath):
+                msg = ""
+                if args.verbose is True and os.path.exists(filepath):
                     fileSize = os.path.getsize(filepath)
                     fileTime = os.path.getmtime(filepath)
 
@@ -428,15 +429,19 @@ def main() -> None:
                         fileTime = format_age(fileTime)
                     else:
                         fileTime = time.ctime(fileTime)
+                    msg = " | " + fileTime
 
-                    if args.human is True:
-                        fileSize = format_size(fileSize)
-                    else:
-                        fileSize = str(fileSize)
+                    if os.path.isfile(filepath):
+                        if args.human is True:
+                            fileSize = format_size(fileSize)
+                        else:
+                            fileSize = str(fileSize)
+                        msg = msg + " | " + fileSize
 
-                    print(filepath + " | " + fileTime + " | " + fileSize)
-                else:
-                    print(filepath)
+                if os.path.islink(filepath) and not os.path.exists(filepath):
+                    msg = " *** broken symlink"
+
+                print(filepath + msg)
 
                 if args.ask is True:
                     if yes_no("Remove", False):
