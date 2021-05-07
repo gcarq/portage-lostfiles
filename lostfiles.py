@@ -5,6 +5,7 @@ import argparse
 import itertools
 import os
 import psutil
+import time
 from glob import glob
 from pathlib import Path
 from typing import List, Set
@@ -294,7 +295,25 @@ WHITELIST = {
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--age", help="show the age of the file in seconds, hours or days", action="store_true")
+    parser.add_argument("--ask", help="ask to remove each file", action="store_true")
+    parser.add_argument(
+            "-e",
+            "--exclude",
+            action="append",
+            metavar="PATH",
+            dest="exclude",
+            help="append files or directories to whitelist",
+        )
+    parser.add_argument(
+            "-E",
+            "--excludeconfig",
+            help="append files or directories to whitelist from config file",
+            type=argparse.FileType('r'),
+        )
+    parser.add_argument("--human", help="print sizes in human readable format (e.g., 1K 234M 2G)", action="store_true")
     parser.add_argument("--strict", help="run in strict mode", action="store_true")
+    parser.add_argument("--verbose", help="show last modified date and file size", action="store_true")
     parser.add_argument(
         "-p",
         "--path",
@@ -316,9 +335,7 @@ def parse_args() -> argparse.Namespace:
 def installed_packages():
     for pkg, directories in PKG_PATHS.items():
         if package_exist(pkg):
-            for directory in directories:
-                for file in glob(directory):
-                    WHITELIST.update({file})
+            whitelist_append(directories)
 
     if package_exist("sys-process/dcron") or package_exist("sys-process/cronie") or package_exist("sys-process/fcron"):
         WHITELIST.update({"/etc/cron.daily"})
@@ -338,12 +355,51 @@ def installed_packages():
         WHITELIST.update({"/etc/conf.d/net"})
 
 
+def whitelist_append(directories: List[str]) -> None:
+    for directory in directories:
+        for file in glob(directory.strip()):
+            WHITELIST.update({file})
+
+
+def yes_no(question: str, default: bool or None = None) -> bool:
+    if default is None:
+        prompt = " [y/n]"
+    elif default is True:
+        prompt = " [Y/n]"
+    elif default is False:
+        prompt = " [y/N]"
+
+    yes = set(['yes', 'y', 'true'])
+    no = set(['no', 'n', 'false'])
+
+    while True:
+        choice = input(question + prompt + "? ").strip().lower()
+        if not choice and default is not None:
+            return default
+        elif choice in yes:
+            return True
+        elif choice in no:
+            return False
+        else:
+            print("Please respond with ({} ".format(", ".join(yes)) + ",{}".format(", ".join(no)) + ")\n")
+
+
 def main() -> None:
     args = parse_args()
     dirs_to_check = args.paths or DIRS_TO_CHECK
+
     tracked = collect_tracked_files()
 
+    if args.exclude:
+        whitelist_append(args.exclude)
+    if args.excludeconfig:
+        whitelist_append(args.excludeconfig.readlines())
+
     installed_packages()
+
+    totalFiles: int = 0
+    totalFilesRemove: int = 0
+    totalSize: int = 0
 
     for dirname in dirs_to_check:
 
@@ -361,7 +417,95 @@ def main() -> None:
                 if args.strict is False and should_ignore_path(filepath):
                     continue
 
-                print(filepath)
+                totalFiles += 1
+                msg = ""
+                if args.verbose is True and os.path.exists(filepath):
+                    fileTime = os.path.getmtime(filepath)
+
+                    if args.age is True:
+                        fileTime = format_age(fileTime)
+                    else:
+                        fileTime = time.ctime(fileTime)
+                    msg = " | " + fileTime
+
+                    if not os.path.islink(filepath):
+                        fileSize = os.path.getsize(filepath)
+                        totalSize += fileSize
+
+                        if args.human is True:
+                            fileSize = format_size(fileSize)
+                        else:
+                            fileSize = str(fileSize)
+                        msg = msg + " | " + fileSize
+
+                if os.path.islink(filepath) and not os.path.exists(filepath):
+                    msg = " *** broken symlink"
+
+                print(filepath + msg)
+
+                if args.ask is True:
+                    if yes_no("Remove", False):
+                        os.remove(filepath)
+                        totalFilesRemove += 1
+
+    if args.verbose is True:
+        print("-------------")
+        print("Total files: " + str(totalFiles))
+        if args.ask is True:
+            print("Total files removed: " + str(totalFilesRemove))
+        if args.human is True:
+            totalSize = format_size(totalSize)
+        print("Total file size: " + str(totalSize))
+
+
+def format_age(fileTime: int) -> str:
+    timeUnitList = (
+        ('s', 60),
+        ('m', 60),
+        ('h', 24),
+    )
+    age = time.time() - fileTime
+    for unit, step in timeUnitList:
+        if (age < step):
+            return "%i%s" % (age, unit)
+        age = age / step
+
+    return "%i%s" % (age, "d")
+
+
+def format_size(sizeInBytes: int, decimalNum: int = 2, isUnitWithI: bool = False, sizeUnitSeparator: str = "") -> str:
+    """format size to human readable string"""
+    # https://en.wikipedia.org/wiki/Binary_prefix#Specific_units_of_IEC_60027-2_A.2_and_ISO.2FIEC_80000
+    # K=kilo, M=mega, G=giga, T=tera, P=peta, E=exa, Z=zetta, Y=yotta
+    sizeUnitList = ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z']
+    largestUnit = 'Y'
+
+    if isUnitWithI:
+        sizeUnitListWithI = []
+        for curIdx, eachUnit in enumerate(sizeUnitList):
+            unitWithI = eachUnit
+            if curIdx >= 1:
+                unitWithI += 'i'
+            sizeUnitListWithI.append(unitWithI)
+
+        # sizeUnitListWithI = ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']
+        sizeUnitList = sizeUnitListWithI
+
+        largestUnit += 'i'
+
+    suffix = "B"
+    decimalFormat = "." + str(decimalNum) + "f"  # ".1f"
+    finalFormat = "%" + decimalFormat + sizeUnitSeparator + "%s%s"  # "%.1f%s%s"
+    sizeNum = sizeInBytes
+    for sizeUnit in sizeUnitList:
+        if abs(sizeNum) < 1024.0:
+            if (isinstance(sizeNum, int)):
+                return ("%i" + sizeUnitSeparator + "%s%s") % (sizeNum, sizeUnit, suffix)
+            else:
+                return finalFormat % (sizeNum, sizeUnit, suffix)
+        sizeNum /= 1024.0
+
+    return finalFormat % (sizeNum, largestUnit, suffix)
 
 
 def should_ignore_path(filepath: str) -> bool:

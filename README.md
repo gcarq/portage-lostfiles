@@ -24,5 +24,31 @@ Override default paths
 $ ./lostfiles.py -p /lib -p /lib32 -p /lib64
 ```
 
+Append files or directories to whitelist
+```bash
+$ ./lostfiles.py -e /etc/awstats -e /etc/drbd.d/*.res
+```
+
+Verbose output with size and time of files and print sizes in human-readable format (e.g., 1K 234M 2G)
+```bash
+$ ./lostfiles.py --verbose --human
+```
+
+Verbose output with size and age of files in days
+```bash
+$ ./lostfiles.py --verbose --age
+```
+
+Append files or directories to whitelist from file
+```bash
+$ ./lostfiles.py -E /etc/listfiles.conf
+```
+
+Ask to remove each file
+```bash
+$ ./lostfiles.py --verbose --ask
+```
+
 ## Dependencies
 * python3.6+
+* psutil
