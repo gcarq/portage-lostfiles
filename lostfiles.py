@@ -211,8 +211,8 @@ PKG_PATHS = {
     },
 }
 
-# Every path defined in whitelist is ignored
-WHITELIST = {
+# All paths defined in this set will be ignored as they are part of almost every linux system
+IGNORED_PATHS = {
     "/etc/.etckeeper",
     "/etc/.git",
     "/etc/.gitignore",
@@ -325,24 +325,24 @@ def installed_packages():
         if package_exist(pkg):
             for directory in directories:
                 for file in glob(directory):
-                    WHITELIST.update({file})
+                    IGNORED_PATHS.update({file})
 
     if package_exist("sys-process/dcron") or package_exist("sys-process/cronie") or package_exist("sys-process/fcron"):
-        WHITELIST.update({"/etc/cron.daily"})
-        WHITELIST.update({"/etc/cron.monthly"})
-        WHITELIST.update({"/etc/cron.weekly"})
+        IGNORED_PATHS.update({"/etc/cron.daily"})
+        IGNORED_PATHS.update({"/etc/cron.monthly"})
+        IGNORED_PATHS.update({"/etc/cron.weekly"})
 
     if package_exist("app-office/libreoffice") or package_exist("app-office/libreoffice-bin"):
-        WHITELIST.update({*glob("/usr/lib*/libreoffice/program/resource/common/fonts/.uuid")})
-        WHITELIST.update({*glob("/usr/lib*/libreoffice/share/fonts/truetype/.uuid")})
+        IGNORED_PATHS.update({*glob("/usr/lib*/libreoffice/program/resource/common/fonts/.uuid")})
+        IGNORED_PATHS.update({*glob("/usr/lib*/libreoffice/share/fonts/truetype/.uuid")})
 
     if check_process("systemd"):
-        WHITELIST.update({"/etc/systemd/network"})
-        WHITELIST.update({"/etc/systemd/user"})
-        WHITELIST.update({"/var/lib/systemd"})
+        IGNORED_PATHS.update({"/etc/systemd/network"})
+        IGNORED_PATHS.update({"/etc/systemd/user"})
+        IGNORED_PATHS.update({"/var/lib/systemd"})
     else:
-        WHITELIST.update({"/etc/adjtime"})
-        WHITELIST.update({"/etc/conf.d/net"})
+        IGNORED_PATHS.update({"/etc/adjtime"})
+        IGNORED_PATHS.update({"/etc/conf.d/net"})
 
 
 def main() -> None:
@@ -356,9 +356,9 @@ def main() -> None:
 
         for dirpath, dirnames, filenames in os.walk(dirname, topdown=True):
             if not args.strict:
-                # Modify dirnames in-place to apply whitelist filter
+                # Modify dirnames in-place to check for ignored paths
                 dirnames[:] = [
-                    d for d in dirnames if os.path.join(dirpath, d) not in WHITELIST
+                    d for d in dirnames if os.path.join(dirpath, d) not in IGNORED_PATHS
                 ]
 
             for name in filenames:
@@ -374,7 +374,7 @@ def main() -> None:
 def should_ignore_path(filepath: str) -> bool:
     """Relative path checks"""
 
-    if filepath in WHITELIST:
+    if filepath in IGNORED_PATHS:
         return True
 
     filename, ext = os.path.splitext(os.path.basename(filepath))
