@@ -55,6 +55,7 @@ PKG_PATHS = {
     },
     "app-emulation/docker": {
         "/etc/docker/key.json",
+        "/var/lib/docker",
     },
     "app-emulation/libvirt": {
         "/etc/libvirt/nwfilter/*.xml",
@@ -64,6 +65,12 @@ PKG_PATHS = {
         "/etc/libvirt/qemu/networks/autostart/*.xml",
         "/etc/libvirt/storage/*.xml",
         "/etc/libvirt/storage/autostart/*.xml",
+    },
+    "app-emulation/lxd": {
+        "/var/lib/lxd",
+    },
+    "app-emulation/podman": {
+        "/var/lib/containers",
     },
     "app-i18n/ibus": {
         "/etc/dconf/db/ibus",
