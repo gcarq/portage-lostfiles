@@ -12,7 +12,7 @@ def read(filename: str) -> str:
 
 setup(
     name="lostfiles",
-    version="0.2.3",
+    version="0.5",
     author="Michael Egger",
     author_email="egger.m@protonmail.com",
     description="A simple script to identify files not tracked by Portage package manager.",
@@ -23,17 +23,17 @@ setup(
     zip_safe=False,
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
-    python_requires=">=3.6",
-    install_requires=['psutil'],
+    python_requires=">=3.8",
+    install_requires=['portage>=3,<4'],
     classifiers=[
         "Topic :: Utilities",
         "Environment :: Console",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
     ],
-    entry_points={"console_scripts": ["lostfiles=lostfiles:main",]},
+    entry_points={"console_scripts": ["lostfiles=lostfiles:main"]},
 )

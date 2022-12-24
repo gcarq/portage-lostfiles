@@ -4,14 +4,15 @@
 import argparse
 import itertools
 import os
-import psutil
 from glob import glob
-from pathlib import Path
-from typing import List, Set
 
+import portage
 import pkg_resources
 
-PORTAGE_DB = "/var/db/pkg"
+# vartree provides an interface to the installed package database.
+# See https://dev.gentoo.org/~zmedico/portage/doc/api/portage.dbapi.vartree.html
+DB_API = portage.db[portage.root]["vartree"].dbapi
+
 DIRS_TO_CHECK = {
     "/bin",
     "/etc",
@@ -31,64 +32,51 @@ PKG_PATHS = {
     "app-admin/salt": {
         "/etc/salt/minion.d/_schedule.conf",
         "/etc/salt/minion_id",
-        "/etc/salt/pki/*",
+        "/etc/salt/pki",
     },
     "app-admin/sudo": {
         "/etc/sudoers.d",
     },
-    "app-admin/system-config-printer": {
-        "/usr/share/system-config-printer/*.pyc",
-    },
     "app-backup/bareos": {
-        "/etc/bareos/*/*/*.conf"
+        *glob("/etc/bareos/*/*/*.conf"),
     },
     "app-crypt/certbot": {
         "/etc/letsencrypt/accounts",
         "/etc/letsencrypt/archive",
-        "/etc/letsencrypt/csr/*.pem",
-        "/etc/letsencrypt/keys/*.pem",
         "/etc/letsencrypt/live",
-        "/etc/letsencrypt/renewal/*.conf",
+        *glob("/etc/letsencrypt/csr/*.pem"),
+        *glob("/etc/letsencrypt/keys/*.pem"),
+        *glob("/etc/letsencrypt/renewal/*.conf"),
     },
-    "app-editors/vim": {
-        "/usr/share/vim/vim82/doc/tags",
-    },
-    "app-emulation/docker": {
+    "app-containers/docker": {
         "/etc/docker/key.json",
         "/var/lib/docker",
     },
     "app-emulation/libvirt": {
-        "/etc/libvirt/nwfilter/*.xml",
-        "/etc/libvirt/qemu/*.xml",
-        "/etc/libvirt/qemu/autostart/*.xml",
-        "/etc/libvirt/qemu/networks/*.xml",
-        "/etc/libvirt/qemu/networks/autostart/*.xml",
-        "/etc/libvirt/storage/*.xml",
-        "/etc/libvirt/storage/autostart/*.xml",
+        *glob("/etc/libvirt/nwfilter/*.xml"),
+        *glob("/etc/libvirt/qemu/*.xml"),
+        *glob("/etc/libvirt/qemu/autostart/*.xml"),
+        *glob("/etc/libvirt/qemu/networks/*.xml"),
+        *glob("/etc/libvirt/qemu/networks/autostart/*.xml"),
+        *glob("/etc/libvirt/storage/*.xml"),
+        *glob("/etc/libvirt/storage/autostart/*.xml"),
     },
     "app-emulation/lxd": {
         "/var/lib/lxd",
     },
-    "app-emulation/podman": {
-        "/var/lib/containers",
-    },
     "app-i18n/ibus": {
         "/etc/dconf/db/ibus",
     },
-    "app-text/docbook-xml-dtd": {
-        "/etc/xml/catalog",
-        "/etc/xml/docbook",
-    },
     "dev-db/mariadb": {
-        "/etc/mysql/mariadb.d/*.cnf",
+        *glob("/etc/mysql/mariadb.d/*.cnf"),
     },
     "dev-lang/php": {
-        "/etc/php/fpm*/fpm.d/*",
+        "/etc/php/fpm*/fpm.d",
     },
     "dev-libs/nss": {
-        "/usr/lib*/libfreebl3.chk",
-        "/usr/lib*/libnssdbm3.chk",
-        "/usr/lib*/libsoftokn3.chk",
+        *glob("/usr/lib*/libfreebl3.chk"),
+        *glob("/usr/lib*/libnssdbm3.chk"),
+        *glob("/usr/lib*/libsoftokn3.chk"),
     },
     "net-dialup/ppp": {
         "/etc/ppp/chap-secrets",
@@ -109,11 +97,11 @@ PKG_PATHS = {
         "/etc/dhcpcd.duid",
     },
     "net-misc/dhcp": {
-        "/etc/dhcp/dhclient-*.conf",
+        *glob("/etc/dhcp/dhclient-*.conf"),
     },
     "net-misc/dahdi-tools": {
-        "/etc/dahdi/assigned-spans.*",
-        "/etc/dahdi/system.*",
+        *glob("/etc/dahdi/assigned-spans.*"),
+        *glob("/etc/dahdi/system.*"),
     },
     "net-print/cups": {
         "/etc/printcap",
@@ -122,10 +110,10 @@ PKG_PATHS = {
         "/etc/cups/ssl",
         "/etc/cups/printers.conf",
         "/etc/cups/subscriptions.conf",
-        "/etc/cups/*.O",
+        *glob("/etc/cups/*.O"),
     },
     "dev-lang/mono": {
-        "/usr/share/.mono/*/Trust",
+        *glob("/usr/share/.mono/*/Trust"),
     },
     "dev-php/PEAR-PEAR": {
         "/usr/share/php/.channels",
@@ -137,7 +125,7 @@ PKG_PATHS = {
         "/usr/share/php/.depdb",
     },
     "mail-filter/rspamd": {
-        "/etc/rspamd/local.d/*",
+        "/etc/rspamd/local.d",
     },
     "mail-filter/spamassassin": {
         "/etc/mail/spamassassin/sa-update-keys",
@@ -146,10 +134,10 @@ PKG_PATHS = {
         "/etc/exim/exim.conf",
     },
     "media-video/vlc": {
-        "/usr/lib*/vlc/plugins/plugins.dat",
+        *glob("/usr/lib*/vlc/plugins/plugins.dat"),
     },
     "media-gfx/graphviz": {
-        "/usr/lib*/graphviz/config6",
+        *glob("/usr/lib*/graphviz/config6"),
     },
     "net-analyzer/librenms": {
         "/opt/librenms/.composer",
@@ -168,21 +156,15 @@ PKG_PATHS = {
         "/etc/firehol/ipsets",
         "/etc/firehol/services",
     },
-    "net-misc/geoipupdate": {
-        "/usr/share/GeoIP",
-    },
     "net-misc/openssh": {
-        "/etc/ssh/ssh_host_*",
+        *glob("/etc/ssh/ssh_host_*"),
     },
     "net-misc/teamviewer": {
-        "/etc/teamviewer*/global.conf",
-        "/opt/teamviewer*/rolloutfile.*",
+        *glob("/etc/teamviewer*/global.conf"),
+        *glob("/opt/teamviewer*/rolloutfile.*"),
     },
     "net-ftp/proftpd": {
         "/etc/proftpd/proftpd.conf",
-    },
-    "net-vpn/openvpn": {
-        "/etc/openvpn",
     },
     "sys-apps/lm-sensors": {
         "/etc/modules-load.d/lm_sensors.conf",
@@ -196,18 +178,18 @@ PKG_PATHS = {
         "/etc/lvm/cache/.cache",
     },
     "sys-libs/cracklib": {
-        "/usr/lib*/cracklib_dict.*",
+        *glob("/usr/lib*/cracklib_dict.*"),
     },
     "www-apps/guacamole-client": {
-        "/etc/guacamole/lib/*",
-        "/etc/guacamole/extensions/*.jar",
+        "/etc/guacamole/lib",
+        *glob("/etc/guacamole/extensions/*.jar"),
     },
     "www-servers/tomcat": {
-        "/etc/conf.d/tomcat-*",
-        "/etc/init.d/tomcat-*",
-        "/etc/runlevels/*/tomcat-*",
-        "/etc/tomcat-*",
-        "/var/lib/tomcat-*",
+        *glob("/etc/conf.d/tomcat-*"),
+        *glob("/etc/init.d/tomcat-*"),
+        *glob("/etc/runlevels/*/tomcat-*"),
+        *glob("/etc/tomcat-*"),
+        *glob("/var/lib/tomcat-*"),
     },
 }
 
@@ -271,20 +253,18 @@ IGNORED_PATHS = {
     "/var/lib/alsa/asound.state",
     "/var/lib/chkboot",
     "/var/lib/dbus/machine-id",
-    "/var/lib/dhcp/dhcpd.leases",
     "/var/lib/flatpak",
     "/var/lib/gentoo/news",
-    "/var/lib/layman",
     "/var/lib/module-rebuild/moduledb",
     "/var/lib/portage",
-    "/var/lib/sddm/.cache",
     "/var/lock",
     "/var/log",
     "/var/run",
     "/var/spool",
     "/var/tmp",
-    *glob("/etc/ssl/*"),
-    *glob("/etc/sysctl.d/*"),
+    "/etc/ssl",
+    "/etc/sysctl.d",
+    "/var/www",
     *glob("/usr/share/gcc-data/*/*/info/dir"),
     *glob("/usr/share/binutils-data/*/*/info/dir"),
     *glob("/lib*/modules"),  # Ignore all kernel modules
@@ -295,8 +275,11 @@ IGNORED_PATHS = {
     *glob("/usr/share/fonts/*/*.dir"),
     *glob("/usr/share/fonts/*/*.scale"),
     *glob("/usr/src/linux*"),  # Ignore kernel source directories
-    *glob("/var/www/*"),
 }
+
+
+class IgnoreDirectory(Exception):
+    pass
 
 
 def parse_args() -> argparse.Namespace:
@@ -320,144 +303,136 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def installed_packages():
-    for pkg, directories in PKG_PATHS.items():
-        if package_exist(pkg):
-            for directory in directories:
-                for file in glob(directory):
-                    IGNORED_PATHS.update({file})
-
-    if package_exist("sys-process/dcron") or package_exist("sys-process/cronie") or package_exist("sys-process/fcron"):
-        IGNORED_PATHS.update({"/etc/cron.daily"})
-        IGNORED_PATHS.update({"/etc/cron.monthly"})
-        IGNORED_PATHS.update({"/etc/cron.weekly"})
-
-    if package_exist("app-office/libreoffice") or package_exist("app-office/libreoffice-bin"):
-        IGNORED_PATHS.update({*glob("/usr/lib*/libreoffice/program/resource/common/fonts/.uuid")})
-        IGNORED_PATHS.update({*glob("/usr/lib*/libreoffice/share/fonts/truetype/.uuid")})
-
-    if check_process("systemd"):
-        IGNORED_PATHS.update({"/etc/systemd/network"})
-        IGNORED_PATHS.update({"/etc/systemd/user"})
-        IGNORED_PATHS.update({"/var/lib/systemd"})
-    else:
-        IGNORED_PATHS.update({"/etc/adjtime"})
-        IGNORED_PATHS.update({"/etc/conf.d/net"})
-
-
 def main() -> None:
     args = parse_args()
     dirs_to_check = args.paths or DIRS_TO_CHECK
     tracked = collect_tracked_files()
 
-    installed_packages()
+    for atom, paths in PKG_PATHS.items():
+        if is_pkg_installed(atom):
+            IGNORED_PATHS.update(paths)
 
     for dirname in dirs_to_check:
-
         for dirpath, dirnames, filenames in os.walk(dirname, topdown=True):
-            if not args.strict:
-                # Modify dirnames in-place to check for ignored paths
-                dirnames[:] = [
-                    d for d in dirnames if os.path.join(dirpath, d) not in IGNORED_PATHS
-                ]
+            try:
+                process_files(dirpath, sorted(filenames), args.strict, tracked)
+            except IgnoreDirectory:
+                if not args.strict:
+                    dirnames[:] = []
+            else:
+                if not args.strict:
+                    dirnames[:] = [
+                        d for d in dirnames if os.path.join(dirpath, d) not in IGNORED_PATHS
+                    ]
 
-            for name in filenames:
-                filepath = os.path.join(dirpath, name.encode('utf-8', 'replace').decode())
-                if any(f in tracked for f in resolve_symlinks(filepath)):
-                    continue
-                if args.strict is False and should_ignore_path(filepath):
-                    continue
 
-                print(filepath)
+def process_files(dirpath: str, filenames: list[str], strict: bool, tracked: set[str]) -> None:
+    """
+    Processes filenames found in the given `dirpath`, if a keepfile is found
+    and the corresponding package is installed a `IgnoreDirectory` exception
+    is raised to indicate this and all subdirectories should be ignored.
+    """
+    for name in filenames:
+        # In the first iteration we are only looking for the keepfile
+        # See https://wiki.gentoo.org/wiki/.keep_file
+        if not name.startswith(".keep_"):
+            continue
+
+        atom = resolve_pkg_from_keepfile(name)
+        if is_pkg_installed(atom):
+            raise IgnoreDirectory()
+        break
+
+    for name in filenames:
+        filepath = os.path.join(dirpath, name.encode("utf-8", "replace").decode())
+        if any(f in tracked for f in resolve_symlinks(filepath)):
+            continue
+        if not strict and should_ignore_path(filepath):
+            continue
+
+        print(filepath)
 
 
 def should_ignore_path(filepath: str) -> bool:
-    """Relative path checks"""
-
+    """Returns `True` if the given path that is not tracked via portage should be ignored"""
     if filepath in IGNORED_PATHS:
         return True
 
-    filename, ext = os.path.splitext(os.path.basename(filepath))
-    # Ignore .keep files to indicate no-delete folders
+    filename = os.path.basename(filepath)
+    # Ignore .keep files that are created by stage tarballs
     if filename == ".keep":
         return True
 
-    dirname = os.path.basename(os.path.dirname(filepath))
-    # Ignore python cached bytecode files
-    if dirname == "__pycache__" and ext == ".pyc":
-        return True
-
     return False
 
 
-def check_process(process_name: str) -> bool:
+def resolve_symlinks(*paths: str) -> set[str]:
+    return set(itertools.chain.from_iterable((p, os.path.realpath(p)) for p in paths))
+
+
+def resolve_pkg_from_keepfile(filename: str) -> str:
     """
-    Check process is running based on name.
+    Returns the package atom from the given .keep file,
+    for example: .keep_net-print_cups-0 -> net-print/cups
     """
-    for proc in psutil.process_iter():
-        if proc.name() == process_name:
-            return True
-
-    return False
+    _, category, remainder = filename.split("_")
+    package, _ = remainder.rsplit("-", maxsplit=1)
+    return f"{category}/{package}"
 
 
-def resolve_symlinks(*paths) -> Set[str]:
-    return set(
-        itertools.chain.from_iterable((path, os.path.realpath(path)) for path in paths)
-    )
+def is_pkg_installed(atom: str) -> bool:
+    """Queries the vartree to see if a certain package is installed"""
+    return bool(DB_API.cp_list(atom))
 
 
-def package_exist(name: str) -> bool:
-    for file in glob(PORTAGE_DB + "/" + name + "-[0-9]*"):
-        if os.path.isdir(file):
-            return True
-
-    return False
-
-
-def normalize_filenames(files: List[str]) -> Set[str]:
+def parse_contents(contents: dict[str, tuple]) -> set[str]:
     """Normalizes a list of CONTENT and returns a set of absolute file paths"""
     normalized = set()
-    for f in files:
-        ctype, rem = f.rstrip().split(" ", maxsplit=1)
-        if ctype == "dir":
-            # format: dir <path>
-            normalized.update(resolve_symlinks(rem))
+    for path, content_type in contents.items():
+        cid, *additional_fields = content_type
+        if cid == "dir":
+            # format: dir
+            normalized.update(resolve_symlinks(path))
 
-        elif ctype == "obj":
-            # format: obj <path> <md5sum> <unixtime>
-            parts = rem.rsplit(" ", maxsplit=2)
-            assert len(parts) == 3, "unknown obj syntax definition for: %s" % f
-            normalized.update(resolve_symlinks(parts[0]))
+        elif cid == "obj":
+            # format: obj <unixtime> <md5sum>
+            normalized.update(resolve_symlinks(path))
 
-        elif ctype == "sym":
-            # format: sym <source> -> <target> <unixtime>
-            parts = rem.split(" -> ")
-            assert len(parts) == 2, "unknown obj syntax definition for: %s" % f
-            sym_origin = parts[0]
-            sym_dest = parts[1].rsplit(" ", maxsplit=1)[0]
+        elif cid == "sym":
+            # format: sym <unixtime> <target>
+            _, sym_dest = additional_fields
             if sym_dest.startswith("/"):
                 sym_target = sym_dest
             else:
-                sym_target = os.path.join(os.path.dirname(sym_origin), sym_dest)
-            normalized.update(resolve_symlinks(sym_origin, sym_target))
+                sym_target = os.path.join(os.path.dirname(path), sym_dest)
+            normalized.update(resolve_symlinks(path, sym_target))
 
         else:
-            raise AssertionError("Unknown content type: %s" % ctype)
+            raise AssertionError(f"Unknown content type: {cid}")
 
     return normalized
 
 
-def collect_tracked_files() -> Set[str]:
-    """Returns a set of files tracked by portage"""
-    files = set()
-    for filename in Path(PORTAGE_DB).glob("**/CONTENTS"):
-        with open(str(filename), mode="r") as fp:
-            files.update(normalize_filenames(fp.readlines()))
+def get_contents_for_pkg(atom: str) -> set[str]:
+    """
+    Returns all paths listed in CONTENTS for each package for the given package atom
+    """
+    pkg_names = DB_API.cp_list(atom)
+    contents = {
+        path: content_type
+        for pkg in pkg_names
+        for path, content_type in DB_API._dblink(pkg).getcontents().items()
+    }
+    return parse_contents(contents)
 
-    if not files:
-        raise AssertionError("No tracked files found. This is probably a bug!")
-    return files
+
+def collect_tracked_files() -> set[str]:
+    """Returns a set of files tracked by portage"""
+    files_iter = (get_contents_for_pkg(atom) for atom in DB_API.cp_all())
+    if files := set(itertools.chain.from_iterable(files_iter)):
+        return files
+
+    raise AssertionError("No tracked files found. Please report this as bug!")
 
 
 if __name__ == "__main__":
