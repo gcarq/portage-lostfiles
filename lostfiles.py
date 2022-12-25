@@ -26,9 +26,6 @@ DIRS_TO_CHECK = {
 }
 
 PKG_PATHS = {
-    "app-admin/logrotate": {
-        "/etc/logrotate.d",
-    },
     "app-admin/salt": {
         "/etc/salt/minion.d/_schedule.conf",
         "/etc/salt/minion_id",
@@ -49,6 +46,7 @@ PKG_PATHS = {
         *glob("/etc/letsencrypt/renewal/*.conf"),
     },
     "app-containers/docker": {
+        "/etc/docker/daemon.json",
         "/etc/docker/key.json",
         "/var/lib/docker",
     },
@@ -78,6 +76,9 @@ PKG_PATHS = {
         *glob("/usr/lib*/libnssdbm3.chk"),
         *glob("/usr/lib*/libsoftokn3.chk"),
     },
+    "dev-utils/ccache": {
+        *glob("/usr/lib*/ccache"),
+    },
     "net-dialup/ppp": {
         "/etc/ppp/chap-secrets",
         "/etc/ppp/pap-secrets",
@@ -87,7 +88,6 @@ PKG_PATHS = {
     "net-dns/bind": {
         "/etc/bind/rndc.key",
         "/etc/bind/rndc.conf",
-        "/var/bind",
     },
     "net-fs/samba": {
         "/etc/samba/smb.conf",
@@ -114,15 +114,6 @@ PKG_PATHS = {
     },
     "dev-lang/mono": {
         *glob("/usr/share/.mono/*/Trust"),
-    },
-    "dev-php/PEAR-PEAR": {
-        "/usr/share/php/.channels",
-        "/usr/share/php/.packagexml",
-        "/usr/share/php/.registry",
-        "/usr/share/php/.filemap",
-        "/usr/share/php/.lock",
-        "/usr/share/php/.depdblock",
-        "/usr/share/php/.depdb",
     },
     "mail-filter/rspamd": {
         "/etc/rspamd/local.d",
@@ -156,11 +147,13 @@ PKG_PATHS = {
         "/etc/firehol/ipsets",
         "/etc/firehol/services",
     },
+    "net-misc/networkmanager": {
+        "/etc/NetworkManager/conf.d",
+    },
     "net-misc/openssh": {
         *glob("/etc/ssh/ssh_host_*"),
     },
     "net-misc/teamviewer": {
-        *glob("/etc/teamviewer*/global.conf"),
         *glob("/opt/teamviewer*/rolloutfile.*"),
     },
     "net-ftp/proftpd": {
@@ -168,6 +161,23 @@ PKG_PATHS = {
     },
     "sys-apps/lm-sensors": {
         "/etc/modules-load.d/lm_sensors.conf",
+    },
+    "sys-apps/etckeeper": {
+        "/etc/.etckeeper",
+        "/etc/.git",
+        "/etc/.gitignore",
+    },
+    "sys-apps/flatpak": {
+        "/var/lib/flatpak",
+    },
+    "sys-apps/fwupd": {
+        "/var/lib/fwupd",
+    },
+    "sys-devel/gcc-config": {
+        "/etc/ld.so.conf.d/05gcc-x86_64-pc-linux-gnu.conf",
+        "/etc/env.d/04gcc-x86_64-pc-linux-gnu",
+        "/etc/env.d/gcc/config-x86_64-pc-linux-gnu",
+        *glob("/usr/share/gcc-data/*/*/info/dir"),
     },
     "sys-fs/cryptsetup": {
         "/etc/crypttab",
@@ -191,13 +201,15 @@ PKG_PATHS = {
         *glob("/etc/tomcat-*"),
         *glob("/var/lib/tomcat-*"),
     },
+    "x11-misc/sddm": {
+        "/etc/sddm.conf",
+        "/etc/sddm.conf.d",
+        "/usr/share/sddm/themes",
+    },
 }
 
 # All paths defined in this set will be ignored as they are part of almost every linux system
 IGNORED_PATHS = {
-    "/etc/.etckeeper",
-    "/etc/.git",
-    "/etc/.gitignore",
     "/etc/.pwd.lock",
     "/etc/.updated",
     "/etc/fstab",
@@ -210,7 +222,6 @@ IGNORED_PATHS = {
     "/etc/ld.so.conf",
     "/etc/locale.conf",
     "/etc/localtime",
-    "/etc/machine-id",
     "/etc/mtab",
     "/etc/motd",
     "/etc/passwd",
@@ -225,22 +236,15 @@ IGNORED_PATHS = {
     "/etc/subuid-",
     "/etc/profile.env",
     "/etc/profile.csh",
-    "/etc/make.conf",
     "/etc/csh.env",
     "/etc/timezone",
     "/etc/udev/hwdb.bin",
     "/etc/vconsole.conf",
     "/etc/env.d/02locale",
-    "/etc/env.d/04gcc-x86_64-pc-linux-gnu",
     "/etc/env.d/05binutils",
     "/etc/env.d/99editor",
     "/etc/env.d/binutils/config-x86_64-pc-linux-gnu",
-    "/etc/env.d/gcc/config-x86_64-pc-linux-gnu",
-    "/etc/ld.so.conf.d/05gcc-x86_64-pc-linux-gnu.conf",
     "/etc/environment.d/10-gentoo-env.conf",
-    "/usr/bin/c89",
-    "/usr/bin/c99",
-    "/usr/lib/ccache",
     "/usr/portage",
     "/usr/sbin/fix_libtool_files.sh",
     "/usr/share/applications/mimeinfo.cache",
@@ -250,22 +254,14 @@ IGNORED_PATHS = {
     "/var/.updated",
     "/var/cache",
     "/var/db",
-    "/var/lib/alsa/asound.state",
-    "/var/lib/chkboot",
-    "/var/lib/dbus/machine-id",
-    "/var/lib/flatpak",
-    "/var/lib/gentoo/news",
     "/var/lib/module-rebuild/moduledb",
     "/var/lib/portage",
     "/var/lock",
     "/var/log",
     "/var/run",
-    "/var/spool",
     "/var/tmp",
-    "/etc/ssl",
     "/etc/sysctl.d",
     "/var/www",
-    *glob("/usr/share/gcc-data/*/*/info/dir"),
     *glob("/usr/share/binutils-data/*/*/info/dir"),
     *glob("/lib*/modules"),  # Ignore all kernel modules
     *glob("/usr/lib*/gconv/gconv-modules.cache"),  # used by glibc
