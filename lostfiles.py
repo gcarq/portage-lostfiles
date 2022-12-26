@@ -25,42 +25,30 @@ DIRS_TO_CHECK = {
     "/var",
 }
 
+# Defines a mapping of package-atoms and paths that should be ignored if the package is installed.
+# NOTE: subfolders will also be ignored if a path is written with a trailing slash
 PKG_PATHS = {
     "app-admin/salt": {
-        "/etc/salt/minion.d/_schedule.conf",
-        "/etc/salt/minion_id",
-        "/etc/salt/pki",
+        "/etc/salt/",
     },
     "app-admin/sudo": {
-        "/etc/sudoers.d",
+        "/etc/sudoers.d/",
     },
     "app-backup/bareos": {
-        *glob("/etc/bareos/*/*/*.conf"),
+        "/etc/bareos/",
     },
     "app-crypt/certbot": {
-        "/etc/letsencrypt/accounts",
-        "/etc/letsencrypt/archive",
-        "/etc/letsencrypt/live",
-        *glob("/etc/letsencrypt/csr/*.pem"),
-        *glob("/etc/letsencrypt/keys/*.pem"),
-        *glob("/etc/letsencrypt/renewal/*.conf"),
+        "/etc/letsencrypt/",
     },
     "app-containers/docker": {
-        "/etc/docker/daemon.json",
-        "/etc/docker/key.json",
-        "/var/lib/docker",
+        "/etc/docker/",
+        "/var/lib/docker/",
     },
     "app-emulation/libvirt": {
-        *glob("/etc/libvirt/nwfilter/*.xml"),
-        *glob("/etc/libvirt/qemu/*.xml"),
-        *glob("/etc/libvirt/qemu/autostart/*.xml"),
-        *glob("/etc/libvirt/qemu/networks/*.xml"),
-        *glob("/etc/libvirt/qemu/networks/autostart/*.xml"),
-        *glob("/etc/libvirt/storage/*.xml"),
-        *glob("/etc/libvirt/storage/autostart/*.xml"),
+        "/etc/libvirt/",
     },
     "app-emulation/lxd": {
-        "/var/lib/lxd",
+        "/var/lib/lxd/",
     },
     "app-i18n/ibus": {
         "/etc/dconf/db/ibus",
@@ -68,8 +56,11 @@ PKG_PATHS = {
     "dev-db/mariadb": {
         *glob("/etc/mysql/mariadb.d/*.cnf"),
     },
+    "dev-lang/mono": {
+        *glob("/usr/share/.mono/*/Trust"),
+    },
     "dev-lang/php": {
-        "/etc/php/fpm*/fpm.d",
+        "/etc/php/fpm*/fpm.d/",
     },
     "dev-libs/nss": {
         *glob("/usr/lib*/libfreebl3.chk"),
@@ -77,78 +68,54 @@ PKG_PATHS = {
         *glob("/usr/lib*/libsoftokn3.chk"),
     },
     "dev-utils/ccache": {
-        *glob("/usr/lib*/ccache"),
+        *glob("/usr/lib*/ccache/"),
+    },
+    "mail-filter/rspamd": {
+        "/etc/rspamd/",
+    },
+    "mail-filter/spamassassin": {
+        "/etc/mail/spamassassin/",
+    },
+    "mail-mta/exim": {
+        "/etc/exim/",
+    },
+    "media-gfx/graphviz": {
+        *glob("/usr/lib*/graphviz/"),
+    },
+    "media-video/vlc": {
+        *glob("/usr/lib*/vlc/plugins/plugins.dat"),
+    },
+    "net-analyzer/librenms": {
+        "/opt/librenms/",
+    },
+    "net-analyzer/net-snmp": {
+        "/etc/snmp/snmpd.conf",
     },
     "net-dialup/ppp": {
-        "/etc/ppp/chap-secrets",
-        "/etc/ppp/pap-secrets",
-        "/etc/ppp/ip-down.d",
-        "/etc/ppp/ip-up.d",
+        "/etc/ppp/",
     },
     "net-dns/bind": {
-        "/etc/bind/rndc.key",
-        "/etc/bind/rndc.conf",
+        "/etc/bind/",
+    },
+    "net-firewall/firehol": {
+        "/etc/firehol/",
     },
     "net-fs/samba": {
-        "/etc/samba/smb.conf",
-        "/etc/samba/smbusers",
+        "/etc/samba/",
     },
     "net-misc/dhcpcd": {
         "/etc/dhcpcd.duid",
     },
     "net-misc/dhcp": {
-        *glob("/etc/dhcp/dhclient-*.conf"),
+        "/etc/dhcp/",
     },
     "net-misc/dahdi-tools": {
         *glob("/etc/dahdi/assigned-spans.*"),
         *glob("/etc/dahdi/system.*"),
     },
-    "net-print/cups": {
-        "/etc/printcap",
-        "/etc/cups/classes.conf",
-        "/etc/cups/ppd",
-        "/etc/cups/ssl",
-        "/etc/cups/printers.conf",
-        "/etc/cups/subscriptions.conf",
-        *glob("/etc/cups/*.O"),
-    },
-    "dev-lang/mono": {
-        *glob("/usr/share/.mono/*/Trust"),
-    },
-    "mail-filter/rspamd": {
-        "/etc/rspamd/local.d",
-    },
-    "mail-filter/spamassassin": {
-        "/etc/mail/spamassassin/sa-update-keys",
-    },
-    "mail-mta/exim": {
-        "/etc/exim/exim.conf",
-    },
-    "media-video/vlc": {
-        *glob("/usr/lib*/vlc/plugins/plugins.dat"),
-    },
-    "media-gfx/graphviz": {
-        *glob("/usr/lib*/graphviz/config6"),
-    },
-    "net-analyzer/librenms": {
-        "/opt/librenms/.composer",
-        "/opt/librenms/bootstrap/cache",
-        "/opt/librenms/config.php",
-        "/opt/librenms/logs/",
-        "/opt/librenms/rrd/",
-        "/opt/librenms/vendor",
-    },
-    "net-analyzer/net-snmp": {
-        "/etc/snmp/snmpd.conf",
-    },
-    "net-firewall/firehol": {
-        "/etc/firehol/firehol.conf",
-        "/etc/firehol/fireqos.conf",
-        "/etc/firehol/ipsets",
-        "/etc/firehol/services",
-    },
     "net-misc/networkmanager": {
-        "/etc/NetworkManager/conf.d",
+        "/etc/NetworkManager/conf.d/",
+        "/var/lib/NetworkManager/",
     },
     "net-misc/openssh": {
         *glob("/etc/ssh/ssh_host_*"),
@@ -159,6 +126,16 @@ PKG_PATHS = {
     "net-ftp/proftpd": {
         "/etc/proftpd/proftpd.conf",
     },
+    "net-print/cups": {
+        "/etc/printcap",
+        "/etc/cups/",
+    },
+    "net-wireless/iwd": {
+        "/etc/iwd/",
+    },
+    "sys-apps/accountsservice": {
+        "/var/lib/AccountsService/",
+    },
     "sys-apps/lm-sensors": {
         "/etc/modules-load.d/lm_sensors.conf",
     },
@@ -168,50 +145,75 @@ PKG_PATHS = {
         "/etc/.gitignore",
     },
     "sys-apps/flatpak": {
-        "/var/lib/flatpak",
+        "/var/lib/flatpak/",
     },
     "sys-apps/fwupd": {
-        "/var/lib/fwupd",
+        "/var/lib/fwupd/",
+    },
+    "sys-apps/systemd": {
+        "/etc/.updated",
+        "/var/.updated",
+    },
+    "sys-devel/binutils": {
+        "/etc/env.d/05binutils",
+        *glob("/etc/env.d/binutils/config-*-*-*"),
+        *glob("/usr/share/binutils-data/*/*/info/dir"),
+        *glob("/usr/*-*-*/bin"),
+        *glob("/usr/*-*-*/lib"),
     },
     "sys-devel/gcc-config": {
-        "/etc/ld.so.conf.d/05gcc-x86_64-pc-linux-gnu.conf",
-        "/etc/env.d/04gcc-x86_64-pc-linux-gnu",
-        "/etc/env.d/gcc/config-x86_64-pc-linux-gnu",
+        *glob("/etc/ld.so.conf.d/05gcc-*-*-*.conf"),
+        *glob("/etc/env.d/04gcc-*-*-*"),
+        *glob("/etc/env.d/gcc/config-*-*-*"),
         *glob("/usr/share/gcc-data/*/*/info/dir"),
     },
     "sys-fs/cryptsetup": {
         "/etc/crypttab",
     },
     "sys-fs/lvm2": {
-        "/etc/lvm/backup",
-        "/etc/lvm/archive",
-        "/etc/lvm/cache/.cache",
+        "/etc/lvm/",
     },
     "sys-libs/cracklib": {
         *glob("/usr/lib*/cracklib_dict.*"),
     },
+    "sys-libs/glibc": {
+        "/etc/ld.so.conf.d",
+        *glob("/usr/lib*/gconv/gconv-modules.cache"),  # used by glibc
+        *glob("/usr/lib*/locale/locale-archive"),  # used by glibc
+    },
+    "virtual/udev": {
+        "/etc/udev/hwdb.bin",
+    },
     "www-apps/guacamole-client": {
-        "/etc/guacamole/lib",
-        *glob("/etc/guacamole/extensions/*.jar"),
+        "/etc/guacamole/",
     },
     "www-servers/tomcat": {
         *glob("/etc/conf.d/tomcat-*"),
         *glob("/etc/init.d/tomcat-*"),
         *glob("/etc/runlevels/*/tomcat-*"),
-        *glob("/etc/tomcat-*"),
-        *glob("/var/lib/tomcat-*"),
+        *glob("/etc/tomcat-*/"),
+        *glob("/var/lib/tomcat-*/"),
+    },
+    "x11-base/xorg-server": {
+        "/etc/X11/xorg.conf.d",
     },
     "x11-misc/sddm": {
         "/etc/sddm.conf",
         "/etc/sddm.conf.d",
-        "/usr/share/sddm/themes",
+        "/etc/sddm.conf.d/kde_settings.conf",
+        "/usr/share/sddm/themes/",
     },
 }
 
-# All paths defined in this set will be ignored as they are part of almost every linux system
+# All paths defined in this set will be ignored as they are part of almost every linux system.
 IGNORED_PATHS = {
     "/etc/.pwd.lock",
-    "/etc/.updated",
+    "/etc/csh.env",  # Automatically created via env-update
+    "/etc/config-archive/",
+    "/etc/env.d/02locale",
+    "/etc/env.d/99editor",
+    "/etc/environment.d",
+    "/etc/environment.d/10-gentoo-env.conf",
     "/etc/fstab",
     "/etc/group",
     "/etc/group-",
@@ -219,58 +221,51 @@ IGNORED_PATHS = {
     "/etc/gshadow-",
     "/etc/hostname",
     "/etc/ld.so.cache",
-    "/etc/ld.so.conf",
-    "/etc/locale.conf",
-    "/etc/localtime",
+    "/etc/ld.so.conf",  # Automatically created via env-update
+    "/etc/locale.conf",  # File will be automatically generated
+    "/etc/machine-id",
     "/etc/mtab",
     "/etc/motd",
     "/etc/passwd",
     "/etc/passwd-",
-    "/etc/portage",
+    "/etc/portage/",
     "/etc/resolv.conf",
+    "/etc/runlevels",
+    "/etc/runlevels/sysinit",
+    "/etc/runlevels/boot",
     "/etc/shadow",
     "/etc/shadow-",
     "/etc/subgid",
     "/etc/subgid-",
     "/etc/subuid",
     "/etc/subuid-",
-    "/etc/profile.env",
-    "/etc/profile.csh",
-    "/etc/csh.env",
-    "/etc/timezone",
-    "/etc/udev/hwdb.bin",
-    "/etc/vconsole.conf",
-    "/etc/env.d/02locale",
-    "/etc/env.d/05binutils",
-    "/etc/env.d/99editor",
-    "/etc/env.d/binutils/config-x86_64-pc-linux-gnu",
-    "/etc/environment.d/10-gentoo-env.conf",
-    "/usr/portage",
-    "/usr/sbin/fix_libtool_files.sh",
-    "/usr/share/applications/mimeinfo.cache",
-    "/usr/share/fonts/.uuid",
-    "/usr/share/info/dir",
-    "/usr/share/mime",
-    "/var/.updated",
-    "/var/cache",
-    "/var/db",
-    "/var/lib/module-rebuild/moduledb",
-    "/var/lib/portage",
-    "/var/lock",
-    "/var/log",
-    "/var/run",
-    "/var/tmp",
+    "/etc/profile.env",  # Automatically created via env-update
     "/etc/sysctl.d",
-    "/var/www",
-    *glob("/usr/share/binutils-data/*/*/info/dir"),
-    *glob("/lib*/modules"),  # Ignore all kernel modules
-    *glob("/usr/lib*/gconv/gconv-modules.cache"),  # used by glibc
-    *glob("/usr/lib*/locale/locale-archive"),  # used by glibc
+    "/lib/modules/",  # Ignore all kernel modules
+    "/usr/local",
+    "/usr/local/bin",
+    "/usr/local/lib",
+    "/usr/local/lib64",
+    "/usr/local/sbin",
+    "/usr/portage/",
+    "/usr/share/applications/mimeinfo.cache",
     *glob("/usr/share/icons/*/icon-theme.cache"),
+    "/usr/share/info/dir",
     *glob("/usr/share/fonts/**/.uuid", recursive=True),
     *glob("/usr/share/fonts/*/*.dir"),
     *glob("/usr/share/fonts/*/*.scale"),
-    *glob("/usr/src/linux*"),  # Ignore kernel source directories
+    "/usr/share/mime/",
+    *glob("/usr/src/linux*/"),  # Ignore kernel source directories
+    "/var/cache/",
+    "/var/db/",
+    "/var/lib/module-rebuild/",
+    "/var/lib/run",
+    "/var/lib/portage/",
+    "/var/lock/",
+    "/var/log/",
+    "/var/run/",
+    "/var/tmp/",
+    "/var/www/",
 }
 
 
@@ -311,22 +306,22 @@ def main() -> None:
     for dirname in dirs_to_check:
         for dirpath, dirnames, filenames in os.walk(dirname, topdown=True):
             try:
-                process_files(dirpath, sorted(filenames), args.strict, tracked)
+                process_directory(dirpath, sorted(filenames), args.strict, tracked)
             except IgnoreDirectory:
                 if not args.strict:
                     dirnames[:] = []
             else:
                 if not args.strict:
                     dirnames[:] = [
-                        d for d in dirnames if os.path.join(dirpath, d) not in IGNORED_PATHS
+                        d for d in dirnames if os.path.join(dirpath, d, "") not in IGNORED_PATHS
                     ]
 
 
-def process_files(dirpath: str, filenames: list[str], strict: bool, tracked: set[str]) -> None:
+def process_directory(dirpath: str, filenames: list[str], strict: bool, tracked: set[str]) -> None:
     """
     Processes filenames found in the given `dirpath`, if a keepfile is found
     and the corresponding package is installed a `IgnoreDirectory` exception
-    is raised to indicate this and all subdirectories should be ignored.
+    is raised to indicate this and all subdirectories should be ignored
     """
     for name in filenames:
         # In the first iteration we are only looking for the keepfile
@@ -339,11 +334,15 @@ def process_files(dirpath: str, filenames: list[str], strict: bool, tracked: set
             raise IgnoreDirectory()
         break
 
+    if not strict:
+        paths = resolve_symlink(dirpath)
+        if not any(path in tracked or not strict and should_ignore_path(path) for path in paths):
+            print(f"{dirpath}/")
+
     for name in filenames:
         filepath = os.path.join(dirpath, name.encode("utf-8", "replace").decode())
-        if any(f in tracked for f in resolve_symlinks(filepath)):
-            continue
-        if not strict and should_ignore_path(filepath):
+        paths = resolve_symlink(filepath)
+        if any(path in tracked or not strict and should_ignore_path(path) for path in paths):
             continue
 
         print(filepath)
@@ -362,8 +361,8 @@ def should_ignore_path(filepath: str) -> bool:
     return False
 
 
-def resolve_symlinks(*paths: str) -> set[str]:
-    return set(itertools.chain.from_iterable((p, os.path.realpath(p)) for p in paths))
+def resolve_symlink(path: str) -> set[str]:
+    return {path, os.path.realpath(path)}
 
 
 def resolve_pkg_from_keepfile(filename: str) -> str:
@@ -388,11 +387,11 @@ def parse_contents(contents: dict[str, tuple]) -> set[str]:
         cid, *additional_fields = content_type
         if cid == "dir":
             # format: dir
-            normalized.update(resolve_symlinks(path))
+            normalized.add(path)
 
         elif cid == "obj":
             # format: obj <unixtime> <md5sum>
-            normalized.update(resolve_symlinks(path))
+            normalized.add(path)
 
         elif cid == "sym":
             # format: sym <unixtime> <target>
@@ -400,9 +399,8 @@ def parse_contents(contents: dict[str, tuple]) -> set[str]:
             if sym_dest.startswith("/"):
                 sym_target = sym_dest
             else:
-                sym_target = os.path.join(os.path.dirname(path), sym_dest)
-            normalized.update(resolve_symlinks(path, sym_target))
-
+                sym_target = os.path.abspath(os.path.join(os.path.dirname(path), sym_dest))
+            normalized.update((path, sym_target))
         else:
             raise AssertionError(f"Unknown content type: {cid}")
 
@@ -410,9 +408,7 @@ def parse_contents(contents: dict[str, tuple]) -> set[str]:
 
 
 def get_contents_for_pkg(atom: str) -> set[str]:
-    """
-    Returns all paths listed in CONTENTS for each package for the given package atom
-    """
+    """Returns all paths listed in CONTENTS for each package for the given package atom"""
     pkg_names = DB_API.cp_list(atom)
     contents = {
         path: content_type
