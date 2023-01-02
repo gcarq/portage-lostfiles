@@ -34,6 +34,9 @@ PKG_PATHS = {
     "app-admin/sudo": {
         "/etc/sudoers.d/",
     },
+    "app-arch/rpm": {
+        "/var/lib/rpm/",
+    },
     "app-backup/bareos": {
         "/etc/bareos/",
     },
@@ -50,6 +53,9 @@ PKG_PATHS = {
     "app-emulation/lxd": {
         "/var/lib/lxd/",
     },
+    "app-forensics/rkhunter": {
+        "/var/lib/rkhunter/",
+    },
     "app-i18n/ibus": {
         "/etc/dconf/db/ibus",
     },
@@ -57,7 +63,7 @@ PKG_PATHS = {
         *glob("/etc/mysql/mariadb.d/*.cnf"),
     },
     "dev-lang/mono": {
-        *glob("/usr/share/.mono/*/Trust"),
+        *glob("/usr/share/.mono/*/Trust/*"),
     },
     "dev-lang/php": {
         "/etc/php/fpm*/fpm.d/",
@@ -68,7 +74,7 @@ PKG_PATHS = {
         *glob("/usr/lib*/libsoftokn3.chk"),
     },
     "dev-utils/ccache": {
-        *glob("/usr/lib*/ccache/"),
+        *glob("/usr/lib*/ccache", recursive=True),
     },
     "mail-filter/rspamd": {
         "/etc/rspamd/",
@@ -129,6 +135,7 @@ PKG_PATHS = {
     "net-print/cups": {
         "/etc/printcap",
         "/etc/cups/",
+        "/var/spool/cups/",
     },
     "net-wireless/iwd": {
         "/etc/iwd/",
@@ -154,8 +161,12 @@ PKG_PATHS = {
         "/etc/.updated",
         "/var/.updated",
     },
+    "sys-apps/util-linux": {
+        "/etc/adjtime",
+    },
     "sys-devel/binutils": {
         "/etc/env.d/05binutils",
+        *glob("/etc/env.d/binutils/*-*-*"),
         *glob("/etc/env.d/binutils/config-*-*-*"),
         *glob("/usr/share/binutils-data/*/*/info/dir"),
         *glob("/usr/*-*-*/bin"),
@@ -178,8 +189,9 @@ PKG_PATHS = {
     },
     "sys-libs/glibc": {
         "/etc/ld.so.conf.d",
-        *glob("/usr/lib*/gconv/gconv-modules.cache"),  # used by glibc
-        *glob("/usr/lib*/locale/locale-archive"),  # used by glibc
+        *glob("/usr/lib*/gconv/gconv-modules.cache"),
+        *glob("/usr/lib*/locale"),
+        *glob("/usr/lib*/locale/locale-archive"),
     },
     "virtual/udev": {
         "/etc/udev/hwdb.bin",
@@ -196,6 +208,11 @@ PKG_PATHS = {
     },
     "x11-base/xorg-server": {
         "/etc/X11/xorg.conf.d",
+    },
+    "x11-themes/papirus-icon-theme": {
+        "/usr/share/icons/ePapirus/",
+        "/usr/share/icons/Papirus/",
+        "/usr/share/icons/Papirus-Dark/",
     },
     "x11-misc/sddm": {
         "/etc/sddm.conf",
@@ -242,6 +259,7 @@ IGNORED_PATHS = {
     "/etc/profile.env",  # Automatically created via env-update
     "/etc/sysctl.d",
     "/lib/modules/",  # Ignore all kernel modules
+    "/usr/lib/modules/",  # Ignore all kernel modules
     "/usr/local",
     "/usr/local/bin",
     "/usr/local/lib",
@@ -335,13 +353,13 @@ def process_directory(dirpath: str, filenames: list[str], strict: bool, tracked:
         break
 
     if not strict:
-        paths = resolve_symlink(dirpath)
-        if not any(path in tracked or not strict and should_ignore_path(path) for path in paths):
+        paths = resolve_symlinks(dirpath)
+        if not any(path in tracked or should_ignore_path(path) for path in paths):
             print(f"{dirpath}/")
 
     for name in filenames:
         filepath = os.path.join(dirpath, name.encode("utf-8", "replace").decode())
-        paths = resolve_symlink(filepath)
+        paths = resolve_symlinks(filepath)
         if any(path in tracked or not strict and should_ignore_path(path) for path in paths):
             continue
 
@@ -361,8 +379,8 @@ def should_ignore_path(filepath: str) -> bool:
     return False
 
 
-def resolve_symlink(path: str) -> set[str]:
-    return {path, os.path.realpath(path)}
+def resolve_symlinks(*paths: str) -> set[str]:
+    return set(itertools.chain.from_iterable((path, os.path.realpath(path)) for path in paths))
 
 
 def resolve_pkg_from_keepfile(filename: str) -> str:
@@ -387,11 +405,11 @@ def parse_contents(contents: dict[str, tuple]) -> set[str]:
         cid, *additional_fields = content_type
         if cid == "dir":
             # format: dir
-            normalized.add(path)
+            normalized.update(resolve_symlinks(path))
 
         elif cid == "obj":
             # format: obj <unixtime> <md5sum>
-            normalized.add(path)
+            normalized.update(resolve_symlinks(path))
 
         elif cid == "sym":
             # format: sym <unixtime> <target>
@@ -400,7 +418,7 @@ def parse_contents(contents: dict[str, tuple]) -> set[str]:
                 sym_target = sym_dest
             else:
                 sym_target = os.path.abspath(os.path.join(os.path.dirname(path), sym_dest))
-            normalized.update((path, sym_target))
+            normalized.update(resolve_symlinks(path, sym_target))
         else:
             raise AssertionError(f"Unknown content type: {cid}")
 
