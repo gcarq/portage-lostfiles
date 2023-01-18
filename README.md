@@ -3,6 +3,10 @@ A simple script to identify files not tracked by
 [Portage](https://wiki.gentoo.org/wiki/Portage) package manager.
 This package can be installed via the [GURU overlay](https://wiki.gentoo.org/wiki/Project:GURU).
 
+```
+# emerge -av app-portage/portage-lostfiles
+```
+
 ## Why
 Over time a large number of untracked files can accumulate,
 either created manually or leftovers from uninstalled packages,
