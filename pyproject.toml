@@ -1,6 +1,6 @@
 [project]
 name = 'lostfiles'
-version = '0.5.3'
+version = '0.5.4'
 description = 'A simple script to identify files not tracked by Portage package manager'
 readme = 'README.md'
 requires-python = '>=3.8'
