@@ -12,3 +12,7 @@ authors = [
 
 [project.scripts]
 lostfiles = "lostfiles:main"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
