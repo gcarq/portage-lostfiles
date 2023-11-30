@@ -7,7 +7,7 @@ import os
 from glob import glob
 
 import portage
-import pkg_resources
+from importlib.metadata import version
 
 # vartree provides an interface to the installed package database.
 # See https://dev.gentoo.org/~zmedico/portage/doc/api/portage.dbapi.vartree.html
@@ -307,7 +307,7 @@ def parse_args() -> argparse.Namespace:
         "-v",
         "--version",
         action="version",
-        version="%(prog)s {}".format(pkg_resources.require("lostfiles")[0].version),
+        version="%(prog)s {}".format(version("lostfiles")),
     )
     return parser.parse_args()
 
