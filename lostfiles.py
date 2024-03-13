@@ -388,7 +388,7 @@ def resolve_pkg_from_keepfile(filename: str) -> str:
     Returns the package atom from the given .keep file,
     for example: .keep_net-print_cups-0 -> net-print/cups
     """
-    _, category, remainder = filename.split("_")
+    _, category, remainder = filename.split("_", maxsplit=2)
     package, _ = remainder.rsplit("-", maxsplit=1)
     return f"{category}/{package}"
 
