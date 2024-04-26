@@ -347,10 +347,13 @@ def process_directory(dirpath: str, filenames: list[str], strict: bool, tracked:
         if not name.startswith(".keep_"):
             continue
 
-        atom = resolve_pkg_from_keepfile(name)
-        if is_pkg_installed(atom):
-            raise IgnoreDirectory()
-        break
+        try:
+            atom = resolve_pkg_from_keepfile(name)
+            if is_pkg_installed(atom):
+                raise IgnoreDirectory()
+            break
+        except Exception:
+            pass
 
     if not strict:
         paths = resolve_symlinks(dirpath)
