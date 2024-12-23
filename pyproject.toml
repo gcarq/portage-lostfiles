@@ -10,6 +10,9 @@ authors = [
   {name = 'Michael Egger', email = 'egger.m@protonmail.com'},
 ]
 
+[dev-dependencies]
+test = ["pytest"]
+
 [project.scripts]
 lostfiles = "lostfiles:main"
 

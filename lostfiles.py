@@ -4,6 +4,7 @@
 import argparse
 import itertools
 import os
+import sys
 from glob import glob
 
 import portage
@@ -347,10 +348,9 @@ def process_directory(dirpath: str, filenames: list[str], strict: bool, tracked:
         if not name.startswith(".keep_"):
             continue
 
-        atom = resolve_pkg_from_keepfile(name)
-        if is_pkg_installed(atom):
-            raise IgnoreDirectory()
-        break
+        if atom := resolve_pkg_from_keepfile(name):
+            if is_pkg_installed(atom):
+                raise IgnoreDirectory()
 
     if not strict:
         paths = resolve_symlinks(dirpath)
@@ -383,14 +383,22 @@ def resolve_symlinks(*paths: str) -> set[str]:
     return set(itertools.chain.from_iterable((path, os.path.realpath(path)) for path in paths))
 
 
-def resolve_pkg_from_keepfile(filename: str) -> str:
+def resolve_pkg_from_keepfile(filename: str) -> str | None:
     """
     Returns the package atom from the given .keep file,
+    or None if the keepfile cannot be parsed.
     for example: .keep_net-print_cups-0 -> net-print/cups
     """
-    _, category, remainder = filename.split("_", maxsplit=2)
-    package, _ = remainder.rsplit("-", maxsplit=1)
-    return f"{category}/{package}"
+    if filename == '.keep_dir':
+        return None
+
+    try:
+        _, category, remainder = filename.split("_", maxsplit=2)
+        package, _ = remainder.rsplit("-", maxsplit=1)
+        return f"{category}/{package}"
+    except ValueError:
+        print(f"Failed to parse package from keepfile: {filename}, this is a bug", file=sys.stderr)
+        return None
 
 
 def is_pkg_installed(atom: str) -> bool:
